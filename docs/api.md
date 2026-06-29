@@ -1,4 +1,5 @@
-Users
+
+## Users
 
 GET /users/:id
 returns: { id, username, avatar_url, created_at }
@@ -7,8 +8,9 @@ PATCH /users/:id
 expects: { username?, avatar_url? }
 returns: { id, username, avatar_url, updated_at }
 
+---
 
-Groups
+## Groups
 
 GET /groups?search=&page=1&limit=10
 returns: { data: [{ id, name, description, creator_id, member_count, book_count }], total }
@@ -36,8 +38,9 @@ returns: { message: "Left the group" }
 DELETE /groups/:id/members/:userId  (creator only)
 returns: { message: "Member removed" }
 
+---
 
-Books
+## Books
 
 GET /groups/:groupId/books
 returns: { data: [{ id, title, author, cover_url, total_pages, added_at }] }
@@ -52,8 +55,9 @@ returns: { id, title, author, total_pages, progress: [{ user_id, username, curre
 DELETE /groups/:groupId/books/:bookId  (creator only)
 returns: { message: "Book removed" }
 
+---
 
-Progress
+## Progress
 
 GET /groups/:groupId/books/:bookId/progress
 returns: { data: [{ user_id, username, current_page, percentage, status, note, updated_at }] }
@@ -65,8 +69,9 @@ returns: { user_id, book_id, current_page, percentage, status, note, updated_at 
 GET /groups/:groupId/books/:bookId/progress/:userId
 returns: { user_id, username, current_page, percentage, status, note, updated_at }
 
+---
 
-Errors
+## Errors
 
 400 bad request — missing or invalid fields
 401 unauthorized — bad/missing token
