@@ -12,9 +12,6 @@ returns: { id, username, avatar_url, updated_at }
 
 ## Groups
 
-GET /groups?search=&page=1&limit=10
-returns: { data: [{ id, name, description, creator_id, member_count, book_count }], total }
-
 POST /groups
 expects: { name, description? }
 returns: { id, name, description, creator_id, created_at }
