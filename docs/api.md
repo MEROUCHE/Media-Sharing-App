@@ -1,3 +1,16 @@
+## Validation
+POST /api/auth/register
+expectes: {
+    "username": "user",
+    "email": "exemple@example.com",
+    "password": "myPassword123"
+}
+
+POST /api/auth/login
+expects: {
+    "email": "koceilq@example.com",
+    "password": "myPassword123"
+}
 
 ## Users
 
