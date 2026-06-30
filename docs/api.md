@@ -623,55 +623,72 @@ All errors return:
 
 ## 🗄️ Database Schema (Supabase)
 
+# Media Tracker Database Schema & Spring Boot Configuration Guide
+
+This guide details a unified PostgreSQL relational schema using a polymorphic architecture mapped to a Spring Boot (JPA/Hibernate) backend using `@Inheritance(strategy = InheritanceType.SINGLE_TABLE)`. By collapsing specific tables (like `books` and `movies`) into a single `media_items` table, we simplify the schema, eliminate redundancy, and gain ultra-fast polymorphic query performance.
+
+---
+
+## 1. PostgreSQL Schema Definition
+
+
+
 ```sql
--- Users (extends Supabase auth.users)
-profiles (
-  id          uuid primary key references auth.users,
-  username    text unique not null,
-  avatar_url  text,
-  created_at  timestamp default now(),
-  updated_at  timestamp default now()
-)
+-- Enable UUID generation (only needed once per database)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Groups
-groups (
-  id          uuid primary key default uuid_generate_v4(),
-  name        text not null,
-  description text,
-  creator_id  uuid references profiles(id) on delete cascade,
-  created_at  timestamp default now(),
-  updated_at  timestamp default now()
-)
+-- Users Table
+CREATE TABLE users (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username      TEXT UNIQUE NOT NULL,
+    email         TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    avatar_url    TEXT,
+    created_at    TIMESTAMP DEFAULT NOW(),
+    updated_at    TIMESTAMP DEFAULT NOW()
+);
 
--- Group Members
-group_members (
-  group_id    uuid references groups(id) on delete cascade,
-  user_id     uuid references profiles(id) on delete cascade,
-  joined_at   timestamp default now(),
-  primary key (group_id, user_id)
-)
+-- Groups Table
+CREATE TABLE groups (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name        TEXT NOT NULL,
+    description TEXT,
+    creator_id  UUID REFERENCES users(id) ON DELETE CASCADE,
+    created_at  TIMESTAMP DEFAULT NOW(),
+    updated_at  TIMESTAMP DEFAULT NOW()
+);
 
--- Books
-books (
-  id          uuid primary key default uuid_generate_v4(),
-  group_id    uuid references groups(id) on delete cascade,
-  title       text not null,
-  author      text not null,
-  cover_url   text,
-  total_pages integer,
-  description text,
-  added_by    uuid references profiles(id),
-  added_at    timestamp default now()
-)
+-- Group Members Table (Many-to-Many Bridge)
+CREATE TABLE group_members (
+    group_id  UUID REFERENCES groups(id) ON DELETE CASCADE,
+    user_id   UUID REFERENCES users(id) ON DELETE CASCADE,
+    role      TEXT CHECK (role IN ('owner','member')) DEFAULT 'member',
+    joined_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (group_id, user_id)
+);
 
--- Reading Progress
-reading_progress (
-  user_id      uuid references profiles(id) on delete cascade,
-  book_id      uuid references books(id) on delete cascade,
-  current_page integer not null default 0,
-  status       text check (status in ('not_started','reading','finished')) default 'not_started',
-  note         text,
-  updated_at   timestamp default now(),
-  primary key  (user_id, book_id)
-)
+-- Media Items Table (Unified Single-Table for Polymorphism)
+CREATE TABLE media_items (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id    UUID REFERENCES groups(id) ON DELETE CASCADE,
+    type        TEXT CHECK (type IN ('book','movie','show','game')) NOT NULL,
+    title       TEXT NOT NULL,
+    creator     TEXT,        -- Generic mapping: author, director, developer, studio
+    cover_url   TEXT,
+    total_units INTEGER,     -- Generic mapping: pages, total minutes, episodes
+    description TEXT,
+    added_by    UUID REFERENCES users(id) ON DELETE SET NULL,
+    added_at    TIMESTAMP DEFAULT NOW()
+);
+
+-- Progress Table (Many-to-Many Bridge tracking item metrics)
+CREATE TABLE progress (
+    user_id       UUID REFERENCES users(id) ON DELETE CASCADE,
+    media_item_id UUID REFERENCES media_items(id) ON DELETE CASCADE,
+    current_unit  INTEGER NOT NULL DEFAULT 0,
+    status        TEXT CHECK (status IN ('not_started','in_progress','finished')) DEFAULT 'not_started',
+    note          TEXT,
+    updated_at    TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, media_item_id)
+);
 ```
