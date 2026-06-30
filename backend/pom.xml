@@ -11,7 +11,7 @@
 	<groupId>com.idk</groupId>
 	<artifactId>MediaSharingApp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>pom</packaging>
+
 	<name/>
 	<description/>
 	<url/>
@@ -21,9 +21,6 @@
 	<developers>
 		<developer/>
 	</developers>
-	<modules>
-		<module>backend</module>
-	</modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
