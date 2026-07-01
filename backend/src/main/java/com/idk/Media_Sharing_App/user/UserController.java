@@ -1,6 +1,8 @@
 package com.idk.Media_Sharing_App.user;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +37,13 @@ public class UserController {
             @PathVariable UUID id,
             @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
+    }
+
+    // POST /api/users/register
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
+        AuthResponse response = userService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);  // 201
     }
 
     // DELETE /api/users/:id

@@ -1,13 +1,12 @@
 ### GET request to example server
-GET http://localhost:8080/api/users/3
+GET http://localhost:8080/user/23b097b4-c52e-4bda-8991-bf689d680e6d
 
 ###
-POST http://localhost:8080/users/new
+POST http://localhost:8080/user/register
 Content-Type: application/json
 
 {
-  "fname": "samile",
-  "lname": "no one",
-  "db": "2007-05-23",
-  "pb": "nope"
+  "username": "john",
+  "email": "john@email.com",
+  "password": "secret123"
 }
