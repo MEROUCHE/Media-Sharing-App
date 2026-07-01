@@ -1,7 +1,11 @@
 package com.idk.Media_Sharing_App.user;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.UUID;
 
-@Service
-public class UserService {
+public interface UserService {
+    UserProfileResponse getUserById(UUID id);
+    List<UserProfileResponse> getAllUsers();
+    UserProfileResponse updateUser(UUID id, UpdateUserRequest request);
+    void deleteUser(UUID id);
 }

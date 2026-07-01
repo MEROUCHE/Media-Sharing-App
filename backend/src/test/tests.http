@@ -1,0 +1,13 @@
+### GET request to example server
+GET http://localhost:8080/api/users/3
+
+###
+POST http://localhost:8080/users/new
+Content-Type: application/json
+
+{
+  "fname": "samile",
+  "lname": "no one",
+  "db": "2007-05-23",
+  "pb": "nope"
+}
