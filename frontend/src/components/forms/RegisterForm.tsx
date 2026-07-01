@@ -1,8 +1,11 @@
 import { useForm } from "react-hook-form";
 import { registerSchema, type RegisterPayloadValues } from "../../schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRegister } from "../../hooks/useAuth";
 
 function RegisterForm() {
+  const { mutate, isPending, isError } = useRegister();
+
   const {
     register,
     handleSubmit,
@@ -12,12 +15,12 @@ function RegisterForm() {
   });
 
   const onSubmit = (data: RegisterPayloadValues) => {
-    console.log(data);
+    mutate(data);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input type="name" {...register("name")} />
+      <input type="text" {...register("name")} />
       {errors.name && <p>{errors.name.message}</p>}
 
       <input type="email" {...register("email")} />
@@ -25,6 +28,12 @@ function RegisterForm() {
 
       <input type="password" {...register("password")} />
       {errors.password && <p>{errors.password.message}</p>}
+
+      {isError && <p>register failed</p>}
+
+      <button disabled={isPending} type="submit">
+        {isPending ? "Loading..." : "Register"}
+      </button>
     </form>
   );
 }
