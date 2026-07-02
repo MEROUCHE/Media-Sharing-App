@@ -1,16 +1,49 @@
-### `GET /users/:id`
+# Media Sharing App — API Reference
 
+## Base URL
+```
+http://localhost:8080/api
+```
+
+## Authentication
+All endpoints marked **Auth: Required** expect a JWT token in the header:
+```
+Authorization: Bearer <token>
+```
+
+---
+
+## Common Error Responses
+
+| Status | Meaning |
+|--------|---------|
+| 400 | Bad request — missing or invalid fields |
+| 401 | Unauthorized — missing or invalid token |
+| 403 | Forbidden — not allowed to do this |
+| 404 | Resource not found |
+| 409 | Conflict — e.g. already a member |
+| 500 | Server error |
+
+All errors return:
+```json
+{ "error": "Human-readable error message" }
+```
+
+---
+
+## 👤 Users
+
+### `GET /users/:id`
 Get a user's public profile.
 
 **Auth:** Required
 
 **URL Params:**
 | Param | Type | Description |
-|-------|--------|-------------|
-| `id` | string | User UUID |
+|-------|------|-------------|
+| id | string | User UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "id": "uuid",
@@ -20,8 +53,7 @@ Get a user's public profile.
 }
 ```
 
-**Response `404`:**
-
+**Response 404:**
 ```json
 { "error": "User not found" }
 ```
@@ -29,18 +61,16 @@ Get a user's public profile.
 ---
 
 ### `PATCH /users/:id`
-
 Update the current user's profile.
 
 **Auth:** Required — can only update your own profile.
 
 **URL Params:**
 | Param | Type | Description |
-|-------|--------|-------------|
-| `id` | string | User UUID |
+|-------|------|-------------|
+| id | string | User UUID |
 
-**Request Body** _(all fields optional)_:
-
+**Request Body** (all fields optional):
 ```json
 {
   "username": "string",
@@ -48,8 +78,7 @@ Update the current user's profile.
 }
 ```
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "id": "uuid",
@@ -59,8 +88,7 @@ Update the current user's profile.
 }
 ```
 
-**Response `403`:**
-
+**Response 403:**
 ```json
 { "error": "Cannot update another user's profile" }
 ```
@@ -70,20 +98,18 @@ Update the current user's profile.
 ## 👥 Groups
 
 ### `GET /groups`
-
-List all public groups. Supports search and pagination.
+List all groups. Supports search and pagination.
 
 **Auth:** Required
 
 **Query Params:**
 | Param | Type | Default | Description |
-|----------|--------|---------|--------------------------|
-| `search` | string | — | Filter by group name |
-| `page` | number | `1` | Page number |
-| `limit` | number | `10` | Results per page (max 50)|
+|-------|------|---------|-------------|
+| search | string | — | Filter by group name |
+| page | number | 1 | Page number |
+| limit | number | 10 | Results per page (max 50) |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "data": [
@@ -94,7 +120,7 @@ List all public groups. Supports search and pagination.
       "creator_id": "uuid",
       "creator_username": "string",
       "member_count": "number",
-      "book_count": "number",
+      "media_item_count": "number",
       "created_at": "timestamp"
     }
   ],
@@ -107,22 +133,19 @@ List all public groups. Supports search and pagination.
 ---
 
 ### `POST /groups`
-
-Create a new reading group.
+Create a new group.
 
 **Auth:** Required — creator is automatically set to the authenticated user.
 
 **Request Body:**
-
 ```json
 {
-  "name": "string", // required
-  "description": "string" // optional
+  "name": "string",
+  "description": "string"
 }
 ```
 
-**Response `201`:**
-
+**Response 201:**
 ```json
 {
   "id": "uuid",
@@ -133,8 +156,7 @@ Create a new reading group.
 }
 ```
 
-**Response `400`:**
-
+**Response 400:**
 ```json
 { "error": "Name is required" }
 ```
@@ -142,18 +164,16 @@ Create a new reading group.
 ---
 
 ### `GET /groups/:id`
-
-Get full details of a group, including its members and books.
+Get full details of a group, including its members and media items.
 
 **Auth:** Required
 
 **URL Params:**
 | Param | Type | Description |
-|-------|--------|-------------|
-| `id` | string | Group UUID |
+|-------|------|-------------|
+| id | string | Group UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "id": "uuid",
@@ -166,24 +186,25 @@ Get full details of a group, including its members and books.
       "user_id": "uuid",
       "username": "string",
       "avatar_url": "string | null",
+      "role": "owner | member",
       "joined_at": "timestamp"
     }
   ],
-  "books": [
+  "media_items": [
     {
       "id": "uuid",
+      "type": "book | movie | show | game",
       "title": "string",
-      "author": "string",
+      "creator": "string | null",
       "cover_url": "string | null",
-      "total_pages": "number | null",
+      "total_units": "number | null",
       "added_at": "timestamp"
     }
   ]
 }
 ```
 
-**Response `404`:**
-
+**Response 404:**
 ```json
 { "error": "Group not found" }
 ```
@@ -191,18 +212,16 @@ Get full details of a group, including its members and books.
 ---
 
 ### `PATCH /groups/:id`
-
 Update a group's details.
 
-**Auth:** Required — **creator only**.
+**Auth:** Required — creator only.
 
 **URL Params:**
 | Param | Type | Description |
-|-------|--------|-------------|
-| `id` | string | Group UUID |
+|-------|------|-------------|
+| id | string | Group UUID |
 
-**Request Body** _(all fields optional)_:
-
+**Request Body** (all fields optional):
 ```json
 {
   "name": "string",
@@ -210,8 +229,7 @@ Update a group's details.
 }
 ```
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "id": "uuid",
@@ -221,8 +239,7 @@ Update a group's details.
 }
 ```
 
-**Response `403`:**
-
+**Response 403:**
 ```json
 { "error": "Only the group creator can update it" }
 ```
@@ -230,24 +247,21 @@ Update a group's details.
 ---
 
 ### `DELETE /groups/:id`
-
 Delete a group and all its data.
 
-**Auth:** Required — **creator only**.
+**Auth:** Required — creator only.
 
 **URL Params:**
 | Param | Type | Description |
-|-------|--------|-------------|
-| `id` | string | Group UUID |
+|-------|------|-------------|
+| id | string | Group UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 { "message": "Group deleted successfully" }
 ```
 
-**Response `403`:**
-
+**Response 403:**
 ```json
 { "error": "Only the group creator can delete it" }
 ```
@@ -255,18 +269,16 @@ Delete a group and all its data.
 ---
 
 ### `POST /groups/:id/join`
-
-Join a reading group.
+Join a group.
 
 **Auth:** Required
 
 **URL Params:**
 | Param | Type | Description |
-|-------|--------|-------------|
-| `id` | string | Group UUID |
+|-------|------|-------------|
+| id | string | Group UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "group_id": "uuid",
@@ -275,8 +287,7 @@ Join a reading group.
 }
 ```
 
-**Response `409`:**
-
+**Response 409:**
 ```json
 { "error": "Already a member of this group" }
 ```
@@ -284,30 +295,26 @@ Join a reading group.
 ---
 
 ### `DELETE /groups/:id/leave`
-
-Leave a reading group.
+Leave a group.
 
 **Auth:** Required — creator cannot leave (must delete the group instead).
 
 **URL Params:**
 | Param | Type | Description |
-|-------|--------|-------------|
-| `id` | string | Group UUID |
+|-------|------|-------------|
+| id | string | Group UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 { "message": "Left the group successfully" }
 ```
 
-**Response `403`:**
-
+**Response 403:**
 ```json
 { "error": "Creator cannot leave — delete the group instead" }
 ```
 
-**Response `404`:**
-
+**Response 404:**
 ```json
 { "error": "You are not a member of this group" }
 ```
@@ -315,55 +322,56 @@ Leave a reading group.
 ---
 
 ### `DELETE /groups/:id/members/:userId`
-
 Remove a member from a group.
 
-**Auth:** Required — **creator only**.
+**Auth:** Required — creator only.
 
 **URL Params:**
 | Param | Type | Description |
-|----------|--------|--------------------|
-| `id` | string | Group UUID |
-| `userId` | string | User UUID to remove|
+|-------|------|-------------|
+| id | string | Group UUID |
+| userId | string | User UUID to remove |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 { "message": "Member removed successfully" }
 ```
 
-**Response `403`:**
-
+**Response 403:**
 ```json
 { "error": "Only the group creator can remove members" }
 ```
 
 ---
 
-## 📖 Books
+## 🎬 Media Items
 
-### `GET /groups/:groupId/books`
-
-List all books in a group.
+### `GET /groups/:groupId/media`
+List all media items in a group.
 
 **Auth:** Required — must be a group member.
 
 **URL Params:**
 | Param | Type | Description |
-|-----------|--------|-------------|
-| `groupId` | string | Group UUID |
+|-------|------|-------------|
+| groupId | string | Group UUID |
 
-**Response `200`:**
+**Query Params:**
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| type | string | — | Filter by type: `book`, `movie`, `show`, `game` |
 
+**Response 200:**
 ```json
 {
   "data": [
     {
       "id": "uuid",
+      "type": "book | movie | show | game",
       "title": "string",
-      "author": "string",
+      "creator": "string | null",
       "cover_url": "string | null",
-      "total_pages": "number | null",
+      "total_units": "number | null",
       "description": "string | null",
       "added_by": "uuid",
       "added_at": "timestamp"
@@ -374,73 +382,76 @@ List all books in a group.
 
 ---
 
-### `POST /groups/:groupId/books`
+### `POST /groups/:groupId/media`
+Add a media item to a group.
 
-Add a book to a group.
-
-**Auth:** Required — **creator only**.
+**Auth:** Required — creator only.
 
 **URL Params:**
 | Param | Type | Description |
-|-----------|--------|-------------|
-| `groupId` | string | Group UUID |
+|-------|------|-------------|
+| groupId | string | Group UUID |
 
 **Request Body:**
-
 ```json
 {
-  "title": "string", // required
-  "author": "string", // required
-  "cover_url": "string", // optional
-  "total_pages": "number", // optional — used for % progress
-  "description": "string" // optional
+  "type": "book | movie | show | game",
+  "title": "string",
+  "creator": "string",
+  "cover_url": "string",
+  "total_units": "number",
+  "description": "string"
 }
 ```
 
-**Response `201`:**
+`type` and `title` are required. All other fields are optional.
 
+`total_units` is generic — it represents pages for books, minutes for movies, episodes for shows, etc.
+
+`creator` is generic — it represents author for books, director for movies, studio for games, etc.
+
+**Response 201:**
 ```json
 {
   "id": "uuid",
+  "type": "book | movie | show | game",
   "title": "string",
-  "author": "string",
+  "creator": "string | null",
   "cover_url": "string | null",
-  "total_pages": "number | null",
+  "total_units": "number | null",
   "description": "string | null",
   "added_by": "uuid",
   "added_at": "timestamp"
 }
 ```
 
-**Response `403`:**
-
+**Response 403:**
 ```json
-{ "error": "Only the group creator can add books" }
+{ "error": "Only the group creator can add media items" }
 ```
 
 ---
 
-### `GET /groups/:groupId/books/:bookId`
-
-Get details of a specific book, including all members' progress.
+### `GET /groups/:groupId/media/:mediaId`
+Get details of a specific media item, including all members' progress.
 
 **Auth:** Required — must be a group member.
 
 **URL Params:**
 | Param | Type | Description |
-|-----------|--------|-------------|
-| `groupId` | string | Group UUID |
-| `bookId` | string | Book UUID |
+|-------|------|-------------|
+| groupId | string | Group UUID |
+| mediaId | string | Media item UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "id": "uuid",
+  "type": "book | movie | show | game",
   "title": "string",
-  "author": "string",
+  "creator": "string | null",
   "cover_url": "string | null",
-  "total_pages": "number | null",
+  "total_units": "number | null",
   "description": "string | null",
   "added_at": "timestamp",
   "progress": [
@@ -448,9 +459,9 @@ Get details of a specific book, including all members' progress.
       "user_id": "uuid",
       "username": "string",
       "avatar_url": "string | null",
-      "current_page": "number",
-      "percentage": "number",
-      "status": "not_started | reading | finished",
+      "current_unit": "number",
+      "percentage": "number | null",
+      "status": "not_started | in_progress | finished",
       "note": "string | null",
       "updated_at": "timestamp"
     }
@@ -458,61 +469,63 @@ Get details of a specific book, including all members' progress.
 }
 ```
 
+`percentage` is `null` when `total_units` is not set.
+
+**Response 404:**
+```json
+{ "error": "Media item not found" }
+```
+
 ---
 
-### `DELETE /groups/:groupId/books/:bookId`
+### `DELETE /groups/:groupId/media/:mediaId`
+Remove a media item from a group (also removes all progress for that item).
 
-Remove a book from a group (also removes all progress for that book).
-
-**Auth:** Required — **creator only**.
+**Auth:** Required — creator only.
 
 **URL Params:**
 | Param | Type | Description |
-|-----------|--------|-------------|
-| `groupId` | string | Group UUID |
-| `bookId` | string | Book UUID |
+|-------|------|-------------|
+| groupId | string | Group UUID |
+| mediaId | string | Media item UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
-{ "message": "Book removed successfully" }
+{ "message": "Media item removed successfully" }
 ```
 
-**Response `403`:**
-
+**Response 403:**
 ```json
-{ "error": "Only the group creator can remove books" }
+{ "error": "Only the group creator can remove media items" }
 ```
 
 ---
 
-## 📊 Reading Progress
+## 📊 Progress
 
-### `GET /groups/:groupId/books/:bookId/progress`
-
-Get all members' progress on a book.
+### `GET /groups/:groupId/media/:mediaId/progress`
+Get all members' progress on a media item.
 
 **Auth:** Required — must be a group member.
 
 **URL Params:**
 | Param | Type | Description |
-|-----------|--------|-------------|
-| `groupId` | string | Group UUID |
-| `bookId` | string | Book UUID |
+|-------|------|-------------|
+| groupId | string | Group UUID |
+| mediaId | string | Media item UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
-  "book_id": "uuid",
+  "media_item_id": "uuid",
   "data": [
     {
       "user_id": "uuid",
       "username": "string",
       "avatar_url": "string | null",
-      "current_page": "number",
-      "percentage": "number",
-      "status": "not_started | reading | finished",
+      "current_unit": "number",
+      "percentage": "number | null",
+      "status": "not_started | in_progress | finished",
       "note": "string | null",
       "updated_at": "timestamp"
     }
@@ -522,82 +535,84 @@ Get all members' progress on a book.
 
 ---
 
-### `POST /groups/:groupId/books/:bookId/progress`
-
-Create or update your own progress on a book.
+### `POST /groups/:groupId/media/:mediaId/progress`
+Create or update your own progress on a media item.
 
 **Auth:** Required — must be a group member.
 
 **URL Params:**
 | Param | Type | Description |
-|-----------|--------|-------------|
-| `groupId` | string | Group UUID |
-| `bookId` | string | Book UUID |
+|-------|------|-------------|
+| groupId | string | Group UUID |
+| mediaId | string | Media item UUID |
 
 **Request Body:**
-
 ```json
 {
-  "current_page": "number", // required
-  "status": "reading | finished", // optional — auto-set if omitted
-  "note": "string" // optional — e.g. "Just finished chapter 3!"
+  "current_unit": "number",
+  "status": "not_started | in_progress | finished",
+  "note": "string"
 }
 ```
 
-**Response `200`:**
+`current_unit` is required. `status` and `note` are optional.
 
+If `status` is omitted, it is auto-set:
+- `0` → `not_started`
+- `> 0 and < total_units` → `in_progress`
+- `= total_units` → `finished`
+
+**Response 200:**
 ```json
 {
   "user_id": "uuid",
-  "book_id": "uuid",
-  "current_page": "number",
-  "percentage": "number",
-  "status": "not_started | reading | finished",
+  "media_item_id": "uuid",
+  "current_unit": "number",
+  "percentage": "number | null",
+  "status": "not_started | in_progress | finished",
   "note": "string | null",
   "updated_at": "timestamp"
 }
 ```
 
-**Response `400`:**
-
+**Response 400:**
 ```json
-{ "error": "current_page cannot exceed total_pages" }
+{ "error": "current_unit cannot exceed total_units" }
 ```
 
 ---
 
-### `GET /groups/:groupId/books/:bookId/progress/:userId`
-
-Get a specific member's progress on a book.
+### `GET /groups/:groupId/media/:mediaId/progress/:userId`
+Get a specific member's progress on a media item.
 
 **Auth:** Required — must be a group member.
 
 **URL Params:**
 | Param | Type | Description |
-|-----------|--------|----------------|
-| `groupId` | string | Group UUID |
-| `bookId` | string | Book UUID |
-| `userId` | string | User UUID |
+|-------|------|-------------|
+| groupId | string | Group UUID |
+| mediaId | string | Media item UUID |
+| userId | string | User UUID |
 
-**Response `200`:**
-
+**Response 200:**
 ```json
 {
   "user_id": "uuid",
   "username": "string",
-  "book_id": "uuid",
-  "current_page": "number",
-  "percentage": "number",
-  "status": "not_started | reading | finished",
+  "media_item_id": "uuid",
+  "current_unit": "number",
+  "percentage": "number | null",
+  "status": "not_started | in_progress | finished",
   "note": "string | null",
   "updated_at": "timestamp"
 }
 ```
 
-**Response `404`:**
-
+**Response 404:**
 ```json
-{ "error": "No progress found for this user on this book" }
+{ "error": "No progress found for this user on this media item" }
+```
+```
 ```
 
 ---
