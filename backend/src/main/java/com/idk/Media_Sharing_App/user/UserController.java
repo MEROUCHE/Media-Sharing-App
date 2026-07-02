@@ -19,19 +19,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    // GET /api/users/:id
+    // GET /user/:id
     @GetMapping("/{id}")
     public ResponseEntity<UserProfileResponse> getUserById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    // GET /api/users
+    // GET /user
     @GetMapping
     public ResponseEntity<List<UserProfileResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // PATCH /api/users/:id
+    // PATCH /user/:id
     @PatchMapping("/{id}")
     public ResponseEntity<UserProfileResponse> updateUser(
             @PathVariable UUID id,
@@ -39,14 +39,14 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    // POST /api/users/register
+    // POST /user/register
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
         AuthResponse response = userService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);  // 201
     }
 
-    // DELETE /api/users/:id
+    // DELETE /user/:id
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);

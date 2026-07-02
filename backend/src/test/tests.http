@@ -10,3 +10,15 @@ Content-Type: application/json
   "email": "john@email.com",
   "password": "secret123"
 }
+
+###
+POST http://localhost:8080/group?creatorId=23b097b4-c52e-4bda-8991-bf689d680e6d
+Content-Type: application/json
+
+{
+  "name": "elmam7onin",
+  "description": "just a test"
+}
+
+###
+GET http://localhost:8080/group/6eebd98d-c334-4da2-8d67-68e4753217f1

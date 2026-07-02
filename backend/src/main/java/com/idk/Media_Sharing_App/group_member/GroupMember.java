@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +34,16 @@ public class GroupMember {
     @Column(nullable = false, updatable = false)
     private LocalDateTime joinedAt;
 
+    public GroupMember() {
+    }
+
+    public GroupMember(Group group, User user, Role role) {
+        this.group = group;
+        this.user = user;
+        this.role = role;
+    }
+
+
     @PrePersist
     protected void onCreate() {
         joinedAt = LocalDateTime.now();
@@ -40,6 +51,60 @@ public class GroupMember {
 
     public enum Role {
         OWNER, MEMBER
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public LocalDateTime getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(LocalDateTime joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupMember that = (GroupMember) o;
+        return Objects.equals(group, that.group) && Objects.equals(user, that.user) && role == that.role && Objects.equals(joinedAt, that.joinedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(group, user, role, joinedAt);
+    }
+
+    @Override
+    public String toString() {
+        return "GroupMember{" +
+                "group=" + group +
+                ", user=" + user +
+                ", role=" + role +
+                ", joinedAt=" + joinedAt +
+                '}';
     }
 
     @Getter

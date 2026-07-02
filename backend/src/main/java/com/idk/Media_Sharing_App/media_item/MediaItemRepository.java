@@ -12,4 +12,6 @@ public interface MediaItemRepository extends JpaRepository<MediaItem, UUID> {
     List<MediaItem> findByGroup(Group group);
 
     List<MediaItem> findByGroupAndType(Group group, MediaItem.MediaType type);
+
+    long countByGroup(Group group);
 }
