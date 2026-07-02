@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -19,19 +19,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    // GET /user/:id
+    // GET /users/:id
     @GetMapping("/{id}")
     public ResponseEntity<UserProfileResponse> getUserById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    // GET /user
+    // GET /users
     @GetMapping
     public ResponseEntity<List<UserProfileResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // PATCH /user/:id
+    // PATCH /users/:id
     @PatchMapping("/{id}")
     public ResponseEntity<UserProfileResponse> updateUser(
             @PathVariable UUID id,
@@ -39,14 +39,14 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    // POST /user/register
+    // POST /users/register
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
         AuthResponse response = userService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);  // 201
     }
 
-    // DELETE /user/:id
+    // DELETE /users/:id
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);

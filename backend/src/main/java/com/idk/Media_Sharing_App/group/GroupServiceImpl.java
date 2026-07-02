@@ -94,14 +94,15 @@ public class GroupServiceImpl implements GroupService {
                 ))
                 .toList();
 
-        List<MediaItemSummaryResponse> books = mediaItemRepository.findByGroup(group)
+        List<MediaItemSummaryResponse> mediaItems = mediaItemRepository.findByGroup(group)
                 .stream()
                 .map(item -> new MediaItemSummaryResponse(
                         item.getId(),
+                        item.getType().name().toLowerCase(),
                         item.getTitle(),
-                        item.getCreator(),      // "author" in api.md
+                        item.getCreator(),
                         item.getCoverUrl(),
-                        item.getTotalUnits(),   // "total_pages" in api.md
+                        item.getTotalUnits(),
                         item.getAddedAt()
                 ))
                 .toList();
@@ -113,7 +114,7 @@ public class GroupServiceImpl implements GroupService {
                 group.getCreator().getId(),
                 group.getCreatedAt(),
                 members,
-                books
+                mediaItems
         );
     }
 

@@ -385,7 +385,7 @@ List all media items in a group.
 ### `POST /groups/:groupId/media`
 Add a media item to a group.
 
-**Auth:** Required — creator only.
+**Auth:** Required — must be a group member.
 
 **URL Params:**
 | Param | Type | Description |
@@ -427,7 +427,7 @@ Add a media item to a group.
 
 **Response 403:**
 ```json
-{ "error": "Only the group creator can add media items" }
+{ "error": "any member can add media items" }
 ```
 
 ---
@@ -481,7 +481,7 @@ Get details of a specific media item, including all members' progress.
 ### `DELETE /groups/:groupId/media/:mediaId`
 Remove a media item from a group (also removes all progress for that item).
 
-**Auth:** Required — creator only.
+**Auth:** Required — must be a group member.
 
 **URL Params:**
 | Param | Type | Description |
@@ -496,7 +496,7 @@ Remove a media item from a group (also removes all progress for that item).
 
 **Response 403:**
 ```json
-{ "error": "Only the group creator can remove media items" }
+{ "error": "membrs can remove media items" }
 ```
 
 ---

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/group")
+@RequestMapping("/groups")
 public class GroupController {
 
     private final GroupService groupService;
@@ -21,7 +21,7 @@ public class GroupController {
         this.groupService = groupService;
     }
 
-    // GET /group?search=&page=1&limit=10
+    // GET /groups?search=&page=1&limit=10
     @GetMapping
     public ResponseEntity<PagedResponse<GroupSummaryResponse>> getAllGroups(
             @RequestParam(required = false) String search,
@@ -30,7 +30,7 @@ public class GroupController {
         return ResponseEntity.ok(groupService.getAllGroups(search, page, limit));
     }
 
-    // POST /group
+    // POST /groups
     @PostMapping
     public ResponseEntity<GroupCreateResponse> createGroup(
             @RequestBody @Valid CreateGroupRequest request,
@@ -39,13 +39,13 @@ public class GroupController {
                 .body(groupService.createGroup(creatorId, request));
     }
 
-    // GET /group/:id
+    // GET /groups/:id
     @GetMapping("/{id}")
     public ResponseEntity<GroupDetailResponse> getGroupById(@PathVariable UUID id) {
         return ResponseEntity.ok(groupService.getGroupById(id));
     }
 
-    // PATCH /group/:id
+    // PATCH /groups/:id
     @PatchMapping("/{id}")
     public ResponseEntity<GroupUpdateResponse> updateGroup(
             @PathVariable UUID id,
@@ -54,7 +54,7 @@ public class GroupController {
         return ResponseEntity.ok(groupService.updateGroup(id, requesterId, request));
     }
 
-    // DELETE /group/:id
+    // DELETE /groups/:id
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteGroup(
             @PathVariable UUID id,
@@ -63,7 +63,7 @@ public class GroupController {
         return ResponseEntity.ok(Map.of("message", "Group deleted successfully"));
     }
 
-    // POST /group/:id/join
+    // POST /groups/:id/join
     @PostMapping("/{id}/join")
     public ResponseEntity<JoinGroupResponse> joinGroup(
             @PathVariable UUID id,
@@ -71,7 +71,7 @@ public class GroupController {
         return ResponseEntity.ok(groupService.joinGroup(id, userId));
     }
 
-    // DELETE /group/:id/leave
+    // DELETE /groups/:id/leave
     @DeleteMapping("/{id}/leave")
     public ResponseEntity<Map<String, String>> leaveGroup(
             @PathVariable UUID id,
@@ -80,7 +80,7 @@ public class GroupController {
         return ResponseEntity.ok(Map.of("message", "Left the group successfully"));
     }
 
-    // DELETE /group/:id/members/:userId
+    // DELETE /groups/:id/members/:userId
     @DeleteMapping("/{id}/members/{userId}")
     public ResponseEntity<Map<String, String>> removeMember(
             @PathVariable UUID id,

@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -39,6 +40,17 @@ public class Progress {
 
     private LocalDateTime updatedAt;
 
+    public Progress() {
+    }
+
+    public Progress(User user, MediaItem mediaItem, Integer currentUnit, Status status, String note) {
+        this.user = user;
+        this.mediaItem = mediaItem;
+        this.currentUnit = currentUnit;
+        this.status = status;
+        this.note = note;
+    }
+
     @PrePersist
     @PreUpdate
     protected void onUpdate() {
@@ -48,6 +60,78 @@ public class Progress {
 
     public enum Status {
         NOT_STARTED, IN_PROGRESS, FINISHED
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public MediaItem getMediaItem() {
+        return mediaItem;
+    }
+
+    public void setMediaItem(MediaItem mediaItem) {
+        this.mediaItem = mediaItem;
+    }
+
+    public Integer getCurrentUnit() {
+        return currentUnit;
+    }
+
+    public void setCurrentUnit(Integer currentUnit) {
+        this.currentUnit = currentUnit;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Progress progress = (Progress) o;
+        return Objects.equals(user, progress.user) && Objects.equals(mediaItem, progress.mediaItem) && Objects.equals(currentUnit, progress.currentUnit) && status == progress.status && Objects.equals(note, progress.note) && Objects.equals(updatedAt, progress.updatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user, mediaItem, currentUnit, status, note, updatedAt);
+    }
+
+    @Override
+    public String toString() {
+        return "Progress{" +
+                "user=" + user +
+                ", mediaItem=" + mediaItem +
+                ", currentUnit=" + currentUnit +
+                ", status=" + status +
+                ", note='" + note + '\'' +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 
     @Getter

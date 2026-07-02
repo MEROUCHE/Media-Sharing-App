@@ -6,6 +6,7 @@ import java.util.UUID;
 public record MediaItemSummaryResponse(
         UUID id,
         String title,
+        String type,
         String creator,
         String coverUrl,
         Integer totalUnits,

@@ -1,9 +1,7 @@
 package com.idk.Media_Sharing_App.exception;
 
-import com.idk.Media_Sharing_App.group.AlreadyMemberException;
-import com.idk.Media_Sharing_App.group.GroupNotFoundException;
-import com.idk.Media_Sharing_App.group.NotGroupCreatorException;
-import com.idk.Media_Sharing_App.group.NotMemberException;
+import com.idk.Media_Sharing_App.group.*;
+import com.idk.Media_Sharing_App.media_item.MediaItemNotFoundException;
 import com.idk.Media_Sharing_App.user.EmailAlreadyExistsException;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UsernameAlreadyExistsException;
@@ -64,6 +62,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotGroupCreatorException.class)
     public ResponseEntity<Map<String, String>> handleNotCreator(NotGroupCreatorException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(MediaItemNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleMediaItemNotFound(MediaItemNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(NotGroupMemberException.class)
+    public ResponseEntity<Map<String, String>> handleNotGroupMember(NotGroupMemberException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", ex.getMessage()));
     }
