@@ -2,6 +2,8 @@ package com.idk.Media_Sharing_App.exception;
 
 import com.idk.Media_Sharing_App.group.*;
 import com.idk.Media_Sharing_App.media_item.MediaItemNotFoundException;
+import com.idk.Media_Sharing_App.progress.InvalidProgressException;
+import com.idk.Media_Sharing_App.progress.ProgressNotFoundException;
 import com.idk.Media_Sharing_App.user.EmailAlreadyExistsException;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UsernameAlreadyExistsException;
@@ -75,6 +77,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotGroupMemberException.class)
     public ResponseEntity<Map<String, String>> handleNotGroupMember(NotGroupMemberException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ProgressNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleProgressNotFound(ProgressNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidProgressException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidProgress(InvalidProgressException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", ex.getMessage()));
     }
 }

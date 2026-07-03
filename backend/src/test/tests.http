@@ -1,8 +1,8 @@
 ### GET request to example server
-GET http://localhost:8080/user/23b097b4-c52e-4bda-8991-bf689d680e6d
+GET http://localhost:8080/users/23b097b4-c52e-4bda-8991-bf689d680e6d
 
 ###
-POST http://localhost:8080/user/register
+POST http://localhost:8080/users/register
 Content-Type: application/json
 
 {
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/group?creatorId=23b097b4-c52e-4bda-8991-bf689d680e6d
+POST http://localhost:8080/groups?creatorId=23b097b4-c52e-4bda-8991-bf689d680e6d
 Content-Type: application/json
 
 {
@@ -21,4 +21,31 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8080/group/6eebd98d-c334-4da2-8d67-68e4753217f1
+GET http://localhost:8080/groups/6eebd98d-c334-4da2-8d67-68e4753217f1
+
+###
+POST http://localhost:8080/groups/6eebd98d-c334-4da2-8d67-68e4753217f1/media?addedById=23b097b4-c52e-4bda-8991-bf689d680e6d
+Content-Type: application/json
+
+{
+  "type": "BOOK",
+  "title": "Dune",
+  "creator": "Frank Herbert",
+  "totalUnits": 412
+}
+###
+GET  http://localhost:8080/groups/6eebd98d-c334-4da2-8d67-68e4753217f1/media
+###
+POST  http://localhost:8080/users/register
+Content-Type: application/json
+
+{
+  "username": "smug",
+  "email": "smugless@email.com",
+  "password": "letmein"
+}
+###
+POST http://localhost:8080/groups/6eebd98d-c334-4da2-8d67-68e4753217f1/join?userId=0214b299-9af7-4fad-b219-2e9806a4c0ab
+
+###
+GET http://localhost:8080/groups

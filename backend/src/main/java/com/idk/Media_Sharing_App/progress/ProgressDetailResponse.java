@@ -1,12 +1,12 @@
-package com.idk.Media_Sharing_App.media_item;
+package com.idk.Media_Sharing_App.progress;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record ProgressSummaryResponse(
+public record ProgressDetailResponse(
         UUID userId,
         String username,
-        String avatarUrl,
+        UUID mediaItemId,
         Integer currentUnit,
         Double percentage,
         String status,
