@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public interface ProgressService {
     AllProgressResponse getAllProgress(UUID groupId, UUID mediaItemId);
-    ProgressResponse upsertProgress(UUID groupId, UUID mediaItemId, UUID userId, UpsertProgressRequest request);
+    ProgressResponse upsertProgress(UUID groupId, UUID mediaItemId, UpsertProgressRequest request);
     ProgressDetailResponse getUserProgress(UUID groupId, UUID mediaItemId, UUID userId);
 }

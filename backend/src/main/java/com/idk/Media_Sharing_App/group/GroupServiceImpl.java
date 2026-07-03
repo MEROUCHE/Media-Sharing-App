@@ -4,6 +4,7 @@ import com.idk.Media_Sharing_App.common.PagedResponse;
 import com.idk.Media_Sharing_App.group_member.GroupMember;
 import com.idk.Media_Sharing_App.group_member.GroupMemberRepository;
 import com.idk.Media_Sharing_App.media_item.MediaItemRepository;
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import com.idk.Media_Sharing_App.user.User;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UserRepository;
@@ -33,6 +34,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponse<GroupSummaryResponse> getAllGroups(String search, int page, int limit) {
         // enforce max limit of 50
         int safeLimit = Math.min(limit, 50);
@@ -52,7 +54,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public GroupCreateResponse createGroup(UUID creatorId, CreateGroupRequest request) {
+    public GroupCreateResponse createGroup(CreateGroupRequest request) {
+        UUID creatorId = SecurityUtils.getCurrentUserId();
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new UserNotFoundException(creatorId));
 
@@ -80,6 +83,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public GroupDetailResponse getGroupById(UUID id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException(id));
@@ -120,12 +124,13 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public GroupUpdateResponse updateGroup(UUID groupId, UUID requesterId, UpdateGroupRequest request) {
+    public GroupUpdateResponse updateGroup(UUID groupId,UpdateGroupRequest request) {
+
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        // TODO: replace requesterId param with authenticated user from SecurityContext
-        // once Spring Security is added
+        UUID requesterId = SecurityUtils.getCurrentUserId();
+
         if (!group.getCreator().getId().equals(requesterId)) {
             throw new NotGroupCreatorException("update it");
         }
@@ -148,11 +153,12 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public void deleteGroup(UUID groupId, UUID requesterId) {
+    public void deleteGroup(UUID groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        // TODO: replace with SecurityContext check after auth is added
+        UUID requesterId = SecurityUtils.getCurrentUserId();
+
         if (!group.getCreator().getId().equals(requesterId)) {
             throw new NotGroupCreatorException("delete it");
         }
@@ -164,7 +170,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public JoinGroupResponse joinGroup(UUID groupId, UUID userId) {
+    public JoinGroupResponse joinGroup(UUID groupId) {
+        UUID userId = SecurityUtils.getCurrentUserId();
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
@@ -190,7 +197,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public void leaveGroup(UUID groupId, UUID userId) {
+    public void leaveGroup(UUID groupId) {
+        UUID userId = SecurityUtils.getCurrentUserId();
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
@@ -208,28 +216,6 @@ public class GroupServiceImpl implements GroupService {
 
         groupMemberRepository.deleteByGroupAndUser(group, user);
     }
-
-    @Override
-    @Transactional
-    public void removeMember(UUID groupId, UUID requesterId, UUID targetUserId) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException(groupId));
-
-        // TODO: replace with SecurityContext check after auth is added
-        if (!group.getCreator().getId().equals(requesterId)) {
-            throw new NotGroupCreatorException("remove members");
-        }
-
-        User target = userRepository.findById(targetUserId)
-                .orElseThrow(() -> new UserNotFoundException(targetUserId));
-
-        if (!groupMemberRepository.existsByGroupAndUser(group, target)) {
-            throw new NotMemberException();
-        }
-
-        groupMemberRepository.deleteByGroupAndUser(group, target);
-    }
-
 
     private GroupSummaryResponse toSummaryResponse(Group group) {
         return new GroupSummaryResponse(

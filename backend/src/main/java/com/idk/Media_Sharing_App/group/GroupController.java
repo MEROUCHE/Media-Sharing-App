@@ -1,6 +1,7 @@
 package com.idk.Media_Sharing_App.group;
 
 import com.idk.Media_Sharing_App.common.PagedResponse;
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +34,10 @@ public class GroupController {
     // POST /groups
     @PostMapping
     public ResponseEntity<GroupCreateResponse> createGroup(
-            @RequestBody @Valid CreateGroupRequest request,
-            @RequestParam UUID creatorId) {  // TODO: get from SecurityContext after auth
+            @RequestBody @Valid CreateGroupRequest request ) {
+        UUID creatorId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(groupService.createGroup(creatorId, request));
+                .body(groupService.createGroup(request));
     }
 
     // GET /groups/:id
@@ -49,45 +50,35 @@ public class GroupController {
     @PatchMapping("/{id}")
     public ResponseEntity<GroupUpdateResponse> updateGroup(
             @PathVariable UUID id,
-            @RequestBody UpdateGroupRequest request,
-            @RequestParam UUID requesterId) {  // TODO: get from SecurityContext
-        return ResponseEntity.ok(groupService.updateGroup(id, requesterId, request));
+            @RequestBody UpdateGroupRequest request ) {
+        UUID requesterId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(groupService.updateGroup(id,request));
     }
 
     // DELETE /groups/:id
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteGroup(
-            @PathVariable UUID id,
-            @RequestParam UUID requesterId) {  // TODO: get from SecurityContext
-        groupService.deleteGroup(id, requesterId);
+            @PathVariable UUID id) {
+        UUID requesterId = SecurityUtils.getCurrentUserId();
+        groupService.deleteGroup(id);
         return ResponseEntity.ok(Map.of("message", "Group deleted successfully"));
     }
 
     // POST /groups/:id/join
     @PostMapping("/{id}/join")
     public ResponseEntity<JoinGroupResponse> joinGroup(
-            @PathVariable UUID id,
-            @RequestParam UUID userId) {  // TODO: get from SecurityContext
-        return ResponseEntity.ok(groupService.joinGroup(id, userId));
+            @PathVariable UUID id) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(groupService.joinGroup(id));
     }
 
     // DELETE /groups/:id/leave
     @DeleteMapping("/{id}/leave")
     public ResponseEntity<Map<String, String>> leaveGroup(
-            @PathVariable UUID id,
-            @RequestParam UUID userId) {  // TODO: get from SecurityContext
-        groupService.leaveGroup(id, userId);
+            @PathVariable UUID id) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+        groupService.leaveGroup(id);
         return ResponseEntity.ok(Map.of("message", "Left the group successfully"));
-    }
-
-    // DELETE /groups/:id/members/:userId
-    @DeleteMapping("/{id}/members/{userId}")
-    public ResponseEntity<Map<String, String>> removeMember(
-            @PathVariable UUID id,
-            @PathVariable UUID userId,
-            @RequestParam UUID requesterId) {  // TODO: get from SecurityContext
-        groupService.removeMember(id, requesterId, userId);
-        return ResponseEntity.ok(Map.of("message", "Member removed successfully"));
     }
 
 }

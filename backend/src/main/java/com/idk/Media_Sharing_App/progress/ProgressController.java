@@ -1,5 +1,6 @@
 package com.idk.Media_Sharing_App.progress;
 
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +29,9 @@ public class ProgressController {
     public ResponseEntity<ProgressResponse> upsertProgress(
             @PathVariable UUID groupId,
             @PathVariable UUID mediaId,
-            @RequestBody @Valid UpsertProgressRequest request,
-            @RequestParam UUID userId) {  // TODO: get from SecurityContext
-        return ResponseEntity.ok(progressService.upsertProgress(groupId, mediaId, userId, request));
+            @RequestBody @Valid UpsertProgressRequest request ) {
+
+        return ResponseEntity.ok(progressService.upsertProgress(groupId, mediaId, request));
     }
 
     // GET /groups/:groupId/media/:mediaId/progress/:userId

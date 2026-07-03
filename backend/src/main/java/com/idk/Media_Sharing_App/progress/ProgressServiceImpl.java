@@ -8,6 +8,7 @@ import com.idk.Media_Sharing_App.group_member.GroupMemberRepository;
 import com.idk.Media_Sharing_App.media_item.MediaItem;
 import com.idk.Media_Sharing_App.media_item.MediaItemNotFoundException;
 import com.idk.Media_Sharing_App.media_item.MediaItemRepository;
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import com.idk.Media_Sharing_App.user.User;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UserRepository;
@@ -38,6 +39,7 @@ public class ProgressServiceImpl implements ProgressService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AllProgressResponse getAllProgress(UUID groupId, UUID mediaItemId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
@@ -54,10 +56,11 @@ public class ProgressServiceImpl implements ProgressService {
 
     @Override
     @Transactional
-    public ProgressResponse upsertProgress(UUID groupId, UUID mediaItemId,
-                                           UUID userId, UpsertProgressRequest request) {
+    public ProgressResponse upsertProgress(UUID groupId, UUID mediaItemId, UpsertProgressRequest request) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        UUID userId = SecurityUtils.getCurrentUserId();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -101,6 +104,7 @@ public class ProgressServiceImpl implements ProgressService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProgressDetailResponse getUserProgress(UUID groupId, UUID mediaItemId, UUID userId) {
         MediaItem item = getMediaItemInGroup(mediaItemId, groupId);
 

@@ -1,5 +1,6 @@
 package com.idk.Media_Sharing_App.media_item;
 
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +32,9 @@ public class MediaItemController {
     @PostMapping
     public ResponseEntity<MediaItemResponse> addMediaItem(
             @PathVariable UUID groupId,
-            @RequestBody @Valid CreateMediaItemRequest request,
-            @RequestParam UUID addedById) {  // TODO: get from SecurityContext
+            @RequestBody @Valid CreateMediaItemRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(mediaItemService.addMediaItem(groupId, addedById, request));
+                .body(mediaItemService.addMediaItem(groupId, request));
     }
 
     // GET /groups/:groupId/media/:mediaId
@@ -49,9 +49,9 @@ public class MediaItemController {
     @DeleteMapping("/{mediaId}")
     public ResponseEntity<Map<String, String>> removeMediaItem(
             @PathVariable UUID groupId,
-            @PathVariable UUID mediaId,
-            @RequestParam UUID requesterId) {  // TODO: get from SecurityContext
-        mediaItemService.removeMediaItem(groupId, requesterId, mediaId);
+            @PathVariable UUID mediaId) {
+
+        mediaItemService.removeMediaItem(groupId, mediaId);
         return ResponseEntity.ok(Map.of("message", "Media item removed successfully"));
     }
 }

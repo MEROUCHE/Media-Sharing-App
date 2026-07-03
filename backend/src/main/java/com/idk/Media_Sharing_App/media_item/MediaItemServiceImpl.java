@@ -8,6 +8,7 @@ import com.idk.Media_Sharing_App.group_member.GroupMemberRepository;
 import com.idk.Media_Sharing_App.progress.Progress;
 import com.idk.Media_Sharing_App.progress.ProgressRepository;
 import com.idk.Media_Sharing_App.progress.ProgressSummaryResponse;
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import com.idk.Media_Sharing_App.user.User;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UserRepository;
@@ -38,6 +39,7 @@ public class MediaItemServiceImpl implements MediaItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MediaItemResponse> getMediaItems(UUID groupId, String type) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
@@ -60,15 +62,16 @@ public class MediaItemServiceImpl implements MediaItemService {
 
     @Override
     @Transactional
-    public MediaItemResponse addMediaItem(UUID groupId, UUID addedById, CreateMediaItemRequest request) {
+    public MediaItemResponse addMediaItem(UUID groupId,CreateMediaItemRequest request) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        UUID addedById = SecurityUtils.getCurrentUserId();
 
         User addedBy = userRepository.findById(addedById)
                 .orElseThrow(() -> new UserNotFoundException(addedById));
 
-        // TODO: replace addedById param with SecurityContext after auth is added
-        // must be a group member
+
         if (!groupMemberRepository.existsByGroupAndUser(group, addedBy)) {
             throw new NotGroupMemberException();
         }
@@ -88,6 +91,7 @@ public class MediaItemServiceImpl implements MediaItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MediaItemDetailResponse getMediaItemById(UUID groupId, UUID mediaId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
@@ -121,9 +125,11 @@ public class MediaItemServiceImpl implements MediaItemService {
 
     @Override
     @Transactional
-    public void removeMediaItem(UUID groupId, UUID requesterId, UUID mediaId) {
+    public void removeMediaItem(UUID groupId,UUID mediaId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        UUID requesterId = SecurityUtils.getCurrentUserId();
 
         User requester = userRepository.findById(requesterId)
                 .orElseThrow(() -> new UserNotFoundException(requesterId));

@@ -5,6 +5,7 @@ import com.idk.Media_Sharing_App.group.GroupNotFoundException;
 import com.idk.Media_Sharing_App.group.GroupRepository;
 import com.idk.Media_Sharing_App.group.NotGroupCreatorException;
 import com.idk.Media_Sharing_App.group.NotGroupMemberException;
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import com.idk.Media_Sharing_App.user.User;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UserRepository;
@@ -29,6 +30,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public GroupMemberListResponse getMembers(UUID groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
@@ -42,6 +44,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public GroupMemberResponse getMember(UUID groupId, UUID userId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
@@ -57,9 +60,11 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
     @Override
     @Transactional
-    public void removeMember(UUID groupId, UUID requesterId, UUID targetUserId) {
+    public void removeMember(UUID groupId, UUID targetUserId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        UUID requesterId = SecurityUtils.getCurrentUserId();
 
         // only creator can remove members
         if (!group.getCreator().getId().equals(requesterId)) {
@@ -76,6 +81,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         groupMemberRepository.deleteByGroupAndUser(group, target);
     }
 
+    // --- private mapper ---
 
     private GroupMemberResponse toMemberResponse(GroupMember gm) {
         return new GroupMemberResponse(

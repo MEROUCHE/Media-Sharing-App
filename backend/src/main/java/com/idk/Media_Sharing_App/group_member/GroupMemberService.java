@@ -8,6 +8,6 @@ public interface GroupMemberService {
 
     GroupMemberResponse getMember(UUID groupId, UUID userId);
 
-    void removeMember(UUID groupId, UUID requesterId, UUID targetUserId);
+    void removeMember(UUID groupId,UUID targetUserId);
 
 }

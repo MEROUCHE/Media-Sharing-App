@@ -1,5 +1,7 @@
 package com.idk.Media_Sharing_App.user;
 
+import com.idk.Media_Sharing_App.exception.ForbiddenException;
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImplementation implements UserService {
@@ -20,23 +23,29 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserProfileResponse getUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         return toProfileResponse(user);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserProfileResponse> getAllUsers() {
         return userRepository.findAll().stream().map(this::toProfileResponse).toList();
     }
 
     @Override
     public UserProfileResponse updateUser(UUID id, UpdateUserRequest request) {
+
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (!currentUserId.equals(id)) {
+            throw new ForbiddenException("Cannot update another user's profile");
+        }
+
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
-        //
-        //sec for later
-        //
 
         if (request.username() != null && !request.username().isBlank()) {
             user.setUsername(request.username());

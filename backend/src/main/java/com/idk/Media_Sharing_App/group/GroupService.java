@@ -8,18 +8,16 @@ import java.util.UUID;
 public interface GroupService {
     PagedResponse<GroupSummaryResponse> getAllGroups(String search, int page, int limit);
 
-    GroupCreateResponse createGroup(UUID creatorId, CreateGroupRequest request);
+    GroupCreateResponse createGroup(CreateGroupRequest request);
 
     GroupDetailResponse getGroupById(UUID id);
 
-    GroupUpdateResponse updateGroup(UUID groupId, UUID requesterId, UpdateGroupRequest request);
+    GroupUpdateResponse updateGroup(UUID groupId,UpdateGroupRequest request);
 
-    void deleteGroup(UUID groupId, UUID requesterId);
+    void deleteGroup(UUID groupId);
 
-    JoinGroupResponse joinGroup(UUID groupId, UUID userId);
+    JoinGroupResponse joinGroup(UUID groupId);
 
-    void leaveGroup(UUID groupId, UUID userId);
-
-    void removeMember(UUID groupId, UUID requesterId, UUID targetUserId);
+    void leaveGroup(UUID groupId);
 
 }

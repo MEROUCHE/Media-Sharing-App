@@ -1,5 +1,6 @@
 package com.idk.Media_Sharing_App.group_member;
 
+import com.idk.Media_Sharing_App.security.SecurityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -34,9 +35,8 @@ public class GroupMemberController {
     @DeleteMapping("/{userId}")
     public ResponseEntity<Map<String, String>> removeMember(
             @PathVariable UUID groupId,
-            @PathVariable UUID userId,
-            @RequestParam UUID requesterId) {  // TODO: get from SecurityContext
-        groupMemberService.removeMember(groupId, requesterId, userId);
+            @PathVariable UUID userId ) {
+        groupMemberService.removeMember(groupId, userId);
         return ResponseEntity.ok(Map.of("message", "Member removed successfully"));
     }
 
