@@ -3,7 +3,9 @@ package com.idk.Media_Sharing_App.group;
 import com.idk.Media_Sharing_App.common.PagedResponse;
 import com.idk.Media_Sharing_App.group_member.GroupMember;
 import com.idk.Media_Sharing_App.group_member.GroupMemberRepository;
+import com.idk.Media_Sharing_App.media_item.MediaItem;
 import com.idk.Media_Sharing_App.media_item.MediaItemRepository;
+import com.idk.Media_Sharing_App.progress.ProgressRepository;
 import com.idk.Media_Sharing_App.security.SecurityUtils;
 import com.idk.Media_Sharing_App.user.User;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
@@ -22,15 +24,18 @@ public class GroupServiceImpl implements GroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final MediaItemRepository mediaItemRepository;
     private final UserRepository userRepository;
+    private final ProgressRepository  progressRepository;
 
     public GroupServiceImpl(GroupRepository groupRepository,
                             GroupMemberRepository groupMemberRepository,
                             MediaItemRepository mediaItemRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            ProgressRepository progressRepository) {
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.mediaItemRepository = mediaItemRepository;
         this.userRepository = userRepository;
+        this.progressRepository = progressRepository;
     }
 
     @Override
@@ -154,18 +159,31 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public void deleteGroup(UUID groupId) {
+        UUID requesterId = SecurityUtils.getCurrentUserId();
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        UUID requesterId = SecurityUtils.getCurrentUserId();
+
+
 
         if (!group.getCreator().getId().equals(requesterId)) {
             throw new NotGroupCreatorException("delete it");
         }
 
+        // delete progress for all media items in this group
+        List<MediaItem> mediaItems = mediaItemRepository.findByGroup(group);
+        for (MediaItem item : mediaItems) {
+            progressRepository.deleteAll(progressRepository.findByMediaItem(item));
+        }
+
+        // delete media items
+        mediaItemRepository.deleteAll(mediaItems);
+
+        // delete members
+        groupMemberRepository.deleteAll(groupMemberRepository.findByGroup(group));
+
+        // now safe to delete the group
         groupRepository.delete(group);
-        // cascade delete handles group_members and media_items automatically
-        // because of ON DELETE CASCADE on the foreign keys
     }
 
     @Override
@@ -207,7 +225,7 @@ public class GroupServiceImpl implements GroupService {
 
         // creator cannot leave — must delete instead
         if (group.getCreator().getId().equals(userId)) {
-            throw new NotGroupCreatorException("leave — delete the group instead");
+            throw new CreatorCannotLeaveException();
         }
 
         if (!groupMemberRepository.existsByGroupAndUser(group, user)) {

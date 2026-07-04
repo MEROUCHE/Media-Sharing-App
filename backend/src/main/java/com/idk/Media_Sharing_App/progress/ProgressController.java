@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups/{groupId}/media/{mediaId}/progress")
+@RequestMapping("/api/groups/{groupId}/media/{mediaId}/progress")
 public class ProgressController {
 
     private final ProgressService progressService;

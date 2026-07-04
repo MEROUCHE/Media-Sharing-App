@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups/{groupId}/media")
+@RequestMapping("/api/groups/{groupId}/media")
 public class MediaItemController {
 
     private final MediaItemService mediaItemService;

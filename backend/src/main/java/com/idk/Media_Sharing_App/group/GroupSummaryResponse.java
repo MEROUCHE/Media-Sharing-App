@@ -10,6 +10,6 @@ public record GroupSummaryResponse(
         UUID creatorId,
         String creatorUsername,
         long memberCount,
-        long bookCount,
+        long mediaItemCount,
         LocalDateTime createdAt
 ) {}

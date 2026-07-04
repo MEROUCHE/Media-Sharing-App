@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/api/groups")
 public class GroupController {
 
     private final GroupService groupService;
@@ -51,7 +51,6 @@ public class GroupController {
     public ResponseEntity<GroupUpdateResponse> updateGroup(
             @PathVariable UUID id,
             @RequestBody UpdateGroupRequest request ) {
-        UUID requesterId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(groupService.updateGroup(id,request));
     }
 
@@ -59,7 +58,6 @@ public class GroupController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteGroup(
             @PathVariable UUID id) {
-        UUID requesterId = SecurityUtils.getCurrentUserId();
         groupService.deleteGroup(id);
         return ResponseEntity.ok(Map.of("message", "Group deleted successfully"));
     }
@@ -68,7 +66,6 @@ public class GroupController {
     @PostMapping("/{id}/join")
     public ResponseEntity<JoinGroupResponse> joinGroup(
             @PathVariable UUID id) {
-        UUID userId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.ok(groupService.joinGroup(id));
     }
 
@@ -76,7 +73,6 @@ public class GroupController {
     @DeleteMapping("/{id}/leave")
     public ResponseEntity<Map<String, String>> leaveGroup(
             @PathVariable UUID id) {
-        UUID userId = SecurityUtils.getCurrentUserId();
         groupService.leaveGroup(id);
         return ResponseEntity.ok(Map.of("message", "Left the group successfully"));
     }

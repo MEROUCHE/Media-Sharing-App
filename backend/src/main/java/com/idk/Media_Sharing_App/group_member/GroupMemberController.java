@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups/{groupId}/members")
+@RequestMapping("/api/groups/{groupId}/members")
 public class GroupMemberController {
 
     private final GroupMemberService groupMemberService;
