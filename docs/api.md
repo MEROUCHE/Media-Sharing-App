@@ -549,6 +549,43 @@ Get details of a specific media item, including all members' progress.
 ```json
 { "error": "Media item not found" }
 ```
+---
+### `GET /media/search`
+
+Search for media items from external APIs to pre-fill the add media form.
+
+**Auth:** Required
+
+**Query Params:**
+
+| Param | Type | Description |
+|-------|------|-------------|
+| query | string | Search term |
+| type | string | book, movie, show, or game |
+
+**Response 200:**
+
+```json
+[
+  {
+    "title": "Dune",
+    "creator": "Frank Herbert",
+    "coverUrl": "https://covers.openlibrary.org/...",
+    "totalUnits": 412,
+    "description": "string | null",
+    "type": "book",
+    "externalId": "/works/OL102749W"
+  }
+]
+```
+
+**Response 400:**
+
+```json
+{
+  "error": "Invalid type: xyz. Must be book, movie, show or game"
+}
+```
 
 ---
 
