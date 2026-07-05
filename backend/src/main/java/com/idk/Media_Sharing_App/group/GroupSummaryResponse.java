@@ -9,6 +9,8 @@ public record GroupSummaryResponse(
         String description,
         UUID creatorId,
         String creatorUsername,
+        boolean isPublic,
+        String inviteCode,
         long memberCount,
         long mediaItemCount,
         LocalDateTime createdAt

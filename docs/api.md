@@ -39,6 +39,7 @@ Get a user's public profile.
 **Auth:** Required
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | id | string | User UUID |
@@ -66,6 +67,7 @@ Update the current user's profile.
 **Auth:** Required — can only update your own profile.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | id | string | User UUID |
@@ -103,6 +105,7 @@ List all groups. Supports search and pagination.
 **Auth:** Required
 
 **Query Params:**
+
 | Param | Type | Default | Description |
 |-------|------|---------|-------------|
 | search | string | — | Filter by group name |
@@ -119,6 +122,8 @@ List all groups. Supports search and pagination.
       "description": "string | null",
       "creator_id": "uuid",
       "creator_username": "string",
+      "is_public": true,
+      "invite_code": "string",
       "member_count": "number",
       "media_item_count": "number",
       "created_at": "timestamp"
@@ -129,9 +134,35 @@ List all groups. Supports search and pagination.
   "total": 42
 }
 ```
+Note: only public groups appear in this listing
 
 ---
+### `GET /groups/me` 
+Get all groups the current user is a member of (both public and private).
 
+**Auth:** Required
+
+**Response 200:**
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "name": "string",
+      "description": "string | null",
+      "creator_id": "uuid",
+      "creator_username": "string",
+      "is_public": true,
+      "invite_code": "string",
+      "member_count": "number",
+      "media_item_count": "number",
+      "created_at": "timestamp"
+    }
+  ]
+}
+```
+---
 ### `POST /groups`
 Create a new group.
 
@@ -141,7 +172,8 @@ Create a new group.
 ```json
 {
   "name": "string",
-  "description": "string"
+  "description": "string",
+  "isPublic": true
 }
 ```
 
@@ -152,6 +184,8 @@ Create a new group.
   "name": "string",
   "description": "string | null",
   "creator_id": "uuid",
+  "is_public": true,
+  "invite_code": "string",
   "created_at": "timestamp"
 }
 ```
@@ -169,6 +203,7 @@ Get full details of a group, including its members and media items.
 **Auth:** Required
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | id | string | Group UUID |
@@ -180,6 +215,8 @@ Get full details of a group, including its members and media items.
   "name": "string",
   "description": "string | null",
   "creator_id": "uuid",
+  "is_public": true,
+  "invite_code": "string",
   "created_at": "timestamp",
   "members": [
     {
@@ -217,6 +254,7 @@ Update a group's details.
 **Auth:** Required — creator only.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | id | string | Group UUID |
@@ -225,7 +263,8 @@ Update a group's details.
 ```json
 {
   "name": "string",
-  "description": "string"
+  "description": "string",
+  "isPublic": false
 }
 ```
 
@@ -252,6 +291,7 @@ Delete a group and all its data.
 **Auth:** Required — creator only.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | id | string | Group UUID |
@@ -268,15 +308,16 @@ Delete a group and all its data.
 
 ---
 
-### `POST /groups/:id/join`
+### `POST /groups/join/:code`
 Join a group.
 
 **Auth:** Required
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
-| id | string | Group UUID |
+| code | string | 8-character invite code |
 
 **Response 200:**
 ```json
@@ -293,13 +334,41 @@ Join a group.
 ```
 
 ---
+### `POST /groups/:id/refresh-code`
+Regenerate the invite code for a group. Old code immediately becomes invalid.
 
+**Auth:** Required — creator only.
+
+**URL Params:**
+
+| Param | Type | Description |
+|-------|------|-------------|
+| id | string | Group UUID |
+
+**Response 200:**
+
+```json
+{
+  "inviteCode": "string"
+}
+```
+
+**Response 403:**
+
+```json
+{
+  "error": "Only the group creator can refresh the invite code"
+}
+```
+
+---
 ### `DELETE /groups/:id/leave`
 Leave a group.
 
 **Auth:** Required — creator cannot leave (must delete the group instead).
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | id | string | Group UUID |
@@ -327,6 +396,7 @@ Remove a member from a group.
 **Auth:** Required — creator only.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | id | string | Group UUID |
@@ -352,11 +422,13 @@ List all media items in a group.
 **Auth:** Required — must be a group member.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | groupId | string | Group UUID |
 
 **Query Params:**
+
 | Param | Type | Default | Description |
 |-------|------|---------|-------------|
 | type | string | — | Filter by type: `book`, `movie`, `show`, `game` |
@@ -388,6 +460,7 @@ Add a media item to a group.
 **Auth:** Required — must be a group member.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | groupId | string | Group UUID |
@@ -438,6 +511,7 @@ Get details of a specific media item, including all members' progress.
 **Auth:** Required — must be a group member.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | groupId | string | Group UUID |
@@ -484,6 +558,7 @@ Remove a media item from a group (also removes all progress for that item).
 **Auth:** Required — must be a group member.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | groupId | string | Group UUID |
@@ -509,6 +584,7 @@ Get all members' progress on a media item.
 **Auth:** Required — must be a group member.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | groupId | string | Group UUID |
@@ -541,6 +617,7 @@ Create or update your own progress on a media item.
 **Auth:** Required — must be a group member.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | groupId | string | Group UUID |
@@ -588,6 +665,7 @@ Get a specific member's progress on a media item.
 **Auth:** Required — must be a group member.
 
 **URL Params:**
+
 | Param | Type | Description |
 |-------|------|-------------|
 | groupId | string | Group UUID |

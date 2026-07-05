@@ -9,6 +9,8 @@ public record GroupDetailResponse(
         String name,
         String description,
         UUID creatorId,
+        boolean isPublic,
+        String inviteCode,
         LocalDateTime createdAt,
         List<MemberResponse> members,
         List<MediaItemSummaryResponse> mediaItems

@@ -6,4 +6,8 @@ public class GroupNotFoundException extends RuntimeException {
     public GroupNotFoundException(UUID id) {
         super("Group not found with id: " + id);
     }
+
+    public GroupNotFoundException(String code) {
+        super("Group not found with invite code: " + code);
+    }
 }

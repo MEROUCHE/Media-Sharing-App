@@ -46,8 +46,8 @@ public class GroupServiceImpl implements GroupService {
         PageRequest pageable = PageRequest.of(page - 1, safeLimit); // Spring pages are 0-indexed
 
         Page<Group> results = (search != null && !search.isBlank())
-                ? groupRepository.findByNameContainingIgnoreCase(search, pageable)
-                : groupRepository.findAll(pageable);
+                ? groupRepository.findByNameContainingIgnoreCaseAndIsPublic(search, true, pageable)
+                : groupRepository.findByIsPublic(true, pageable);
 
         List<GroupSummaryResponse> data = results.getContent()
                 .stream()
@@ -55,6 +55,19 @@ public class GroupServiceImpl implements GroupService {
                 .toList();
 
         return new PagedResponse<>(data, page, safeLimit, results.getTotalElements());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GroupSummaryResponse> getMyGroups() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException(currentUserId));
+
+        return groupMemberRepository.findByUser(user)
+                .stream()
+                .map(gm -> toSummaryResponse(gm.getGroup()))
+                .toList();
     }
 
     @Override
@@ -68,10 +81,11 @@ public class GroupServiceImpl implements GroupService {
         group.setName(request.name());
         group.setDescription(request.description());
         group.setCreator(creator);
+        group.setIsPublic(request.isPublic() != null ? request.isPublic() : false);
+        group.setInviteCode(generateInviteCode());
 
         Group saved = groupRepository.save(group);
 
-        // automatically add creator as OWNER in group_members
         GroupMember membership = new GroupMember();
         membership.setGroup(saved);
         membership.setUser(creator);
@@ -82,9 +96,11 @@ public class GroupServiceImpl implements GroupService {
                 saved.getId(),
                 saved.getName(),
                 saved.getDescription(),
+                saved.getIsPublic(),
+                saved.getInviteCode(),
                 saved.getCreator().getId(),
                 saved.getCreatedAt()
-        );
+                );
     }
 
     @Override
@@ -121,6 +137,8 @@ public class GroupServiceImpl implements GroupService {
                 group.getName(),
                 group.getDescription(),
                 group.getCreator().getId(),
+                group.getIsPublic(),
+                group.getInviteCode(),
                 group.getCreatedAt(),
                 members,
                 mediaItems
@@ -145,6 +163,9 @@ public class GroupServiceImpl implements GroupService {
         }
         if (request.description() != null) {
             group.setDescription(request.description());
+        }
+        if (request.isPublic() != null) {
+            group.setIsPublic(request.isPublic());
         }
 
         Group saved = groupRepository.save(group);
@@ -213,6 +234,28 @@ public class GroupServiceImpl implements GroupService {
         );
     }
 
+    public JoinGroupResponse joinGroupByCode(String code) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        Group group = groupRepository.findByInviteCode(code)
+                .orElseThrow(() -> new GroupNotFoundException(code));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (groupMemberRepository.existsByGroupAndUser(group, user)) {
+            throw new AlreadyMemberException();
+        }
+
+        GroupMember membership = new GroupMember();
+        membership.setGroup(group);
+        membership.setUser(user);
+        membership.setRole(GroupMember.Role.MEMBER);
+        GroupMember saved = groupMemberRepository.save(membership);
+
+        return new JoinGroupResponse(group.getId(), user.getId(), saved.getJoinedAt());
+    }
+
     @Override
     @Transactional
     public void leaveGroup(UUID groupId) {
@@ -235,6 +278,26 @@ public class GroupServiceImpl implements GroupService {
         groupMemberRepository.deleteByGroupAndUser(group, user);
     }
 
+    @Override
+    @Transactional
+    public String refreshInviteCode(UUID groupId) {
+        UUID requesterId = SecurityUtils.getCurrentUserId();
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        // only creator can refresh the code
+        if (!group.getCreator().getId().equals(requesterId)) {
+            throw new NotGroupCreatorException("refresh the invite code");
+        }
+
+        String newCode = generateInviteCode();
+        group.setInviteCode(newCode);
+        groupRepository.save(group);
+
+        return newCode;
+    }
+
     private GroupSummaryResponse toSummaryResponse(Group group) {
         return new GroupSummaryResponse(
                 group.getId(),
@@ -242,9 +305,21 @@ public class GroupServiceImpl implements GroupService {
                 group.getDescription(),
                 group.getCreator().getId(),
                 group.getCreator().getUsername(),
+                group.getIsPublic(),
+                group.getInviteCode(),
                 groupMemberRepository.countByGroup(group),
                 mediaItemRepository.countByGroup(group),
                 group.getCreatedAt()
         );
+    }
+
+    private String generateInviteCode() {
+        String code;
+        do {
+            code = UUID.randomUUID().toString()
+                    .substring(0, 8)
+                    .toUpperCase();
+        } while (groupRepository.findByInviteCode(code).isPresent());
+        return code;
     }
 }

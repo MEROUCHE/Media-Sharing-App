@@ -20,4 +20,10 @@ public interface GroupService {
 
     void leaveGroup(UUID groupId);
 
+    JoinGroupResponse joinGroupByCode(String code);
+
+    String refreshInviteCode(UUID groupId);
+
+    List<GroupSummaryResponse> getMyGroups();
+
 }

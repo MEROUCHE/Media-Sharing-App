@@ -31,11 +31,16 @@ public class GroupController {
         return ResponseEntity.ok(groupService.getAllGroups(search, page, limit));
     }
 
+    // GET /api/groups/me
+    @GetMapping("/me")
+    public ResponseEntity<List<GroupSummaryResponse>> getMyGroups() {
+        return ResponseEntity.ok(groupService.getMyGroups());
+    }
+
     // POST /groups
     @PostMapping
     public ResponseEntity<GroupCreateResponse> createGroup(
             @RequestBody @Valid CreateGroupRequest request ) {
-        UUID creatorId = SecurityUtils.getCurrentUserId();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(groupService.createGroup(request));
     }
@@ -62,11 +67,11 @@ public class GroupController {
         return ResponseEntity.ok(Map.of("message", "Group deleted successfully"));
     }
 
-    // POST /groups/:id/join
-    @PostMapping("/{id}/join")
-    public ResponseEntity<JoinGroupResponse> joinGroup(
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(groupService.joinGroup(id));
+    // POST /groups/join/{code}
+    @PostMapping("/join/{code}")
+    public ResponseEntity<JoinGroupResponse> joinByCode(
+            @PathVariable String code) {
+        return ResponseEntity.ok(groupService.joinGroupByCode(code));
     }
 
     // DELETE /groups/:id/leave
@@ -75,6 +80,14 @@ public class GroupController {
             @PathVariable UUID id) {
         groupService.leaveGroup(id);
         return ResponseEntity.ok(Map.of("message", "Left the group successfully"));
+    }
+
+    // POST /api/groups/:id/refresh-code
+    @PostMapping("/{id}/refresh-code")
+    public ResponseEntity<Map<String, String>> refreshInviteCode(
+            @PathVariable UUID id) {
+        String newCode = groupService.refreshInviteCode(id);
+        return ResponseEntity.ok(Map.of("inviteCode", newCode));
     }
 
 }

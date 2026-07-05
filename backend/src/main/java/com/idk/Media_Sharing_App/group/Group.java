@@ -1,5 +1,6 @@
 package com.idk.Media_Sharing_App.group;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.idk.Media_Sharing_App.user.User;
 import jakarta.persistence.*;
 
@@ -28,6 +29,17 @@ public class Group {
 
     private LocalDateTime updatedAt;
 
+    @Column(unique = true, nullable = false)
+    private String inviteCode;
+
+    @Column(name = "is_public", nullable = false)
+    @JsonProperty("isPublic")
+    private Boolean isPublic = false;
+
+    public Boolean getIsPublic() { return isPublic; }
+
+    public void setIsPublic(Boolean isPublic) { this.isPublic = isPublic; }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -42,14 +54,8 @@ public class Group {
     public Group() {
     }
 
-    public Group(UUID id, String name, String description, User creator, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.creator = creator;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+
+
 
     public UUID getId() {
         return id;
@@ -99,27 +105,25 @@ public class Group {
         this.updatedAt = updatedAt;
     }
 
+    public String getInviteCode() {
+        return inviteCode;
+    }
+
+    public void setInviteCode(String inviteCode) {
+        this.inviteCode = inviteCode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Group group = (Group) o;
-        return Objects.equals(id, group.id) && Objects.equals(name, group.name) && Objects.equals(description, group.description) && Objects.equals(creator, group.creator) && Objects.equals(createdAt, group.createdAt) && Objects.equals(updatedAt, group.updatedAt);
+        return isPublic == group.isPublic && Objects.equals(id, group.id) && Objects.equals(name, group.name) && Objects.equals(description, group.description) && Objects.equals(creator, group.creator) && Objects.equals(createdAt, group.createdAt) && Objects.equals(updatedAt, group.updatedAt) && Objects.equals(inviteCode, group.inviteCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, creator, createdAt, updatedAt);
+        return Objects.hash(id, name, description, creator, createdAt, updatedAt, inviteCode, isPublic);
     }
 
-    @Override
-    public String toString() {
-        return "Group{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", creator=" + creator +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
-    }
+
 }

@@ -18,4 +18,10 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
 
     // for simple "all groups by this user"
     java.util.List<Group> findByCreator(User creator);
+
+    Optional<Group> findByInviteCode(String inviteCode);
+
+    Page<Group> findByIsPublic(boolean isPublic, Pageable pageable);
+
+    Page<Group> findByNameContainingIgnoreCaseAndIsPublic(String name, boolean isPublic, Pageable pageable);
 }

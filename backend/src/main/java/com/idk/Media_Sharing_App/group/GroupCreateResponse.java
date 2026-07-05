@@ -7,6 +7,8 @@ public record GroupCreateResponse(
         UUID id,
         String name,
         String description,
+        boolean isPublic,
+        String inviteCode,
         UUID creatorId,
         LocalDateTime createdAt
 ) {}
