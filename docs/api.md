@@ -589,6 +589,35 @@ Search for media items from external APIs to pre-fill the add media form.
 
 ---
 
+### `GET /media/search/details`
+
+Fetch full details for a specific media item after user selects from search dropdown.
+
+**Auth:** Required
+
+**Query Params:**
+
+| Param | Type | Description |
+|-------|------|-------------|
+| query | string | External API ID from search result |
+| type | string | book, movie, show, or game |
+
+**Response 200:**
+
+```json
+{
+  "title": "Interstellar",
+  "creator": "Christopher Nolan",
+  "coverUrl": "https://image.tmdb.org/t/p/w500/...",
+  "totalUnits": 169,
+  "description": "A team of explorers...",
+  "type": "movie",
+  "externalId": "157336"
+}
+```
+
+---
+
 ### `DELETE /groups/:groupId/media/:mediaId`
 Remove a media item from a group (also removes all progress for that item).
 

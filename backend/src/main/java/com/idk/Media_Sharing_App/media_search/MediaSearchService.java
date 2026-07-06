@@ -92,9 +92,9 @@ public class MediaSearchService {
 
                 results.add(new MediaSearchResult(
                         movie.has("title") ? movie.get("title").asText() : null,
-                        null,  // TMDB search doesn't return director — needs a second call
+                        null,   // ← creator not fetched during search anymore
                         coverUrl,
-                        movie.has("runtime") ? movie.get("runtime").asInt() : null,
+                        null,   // ← runtime also not in search results
                         movie.has("overview") ? movie.get("overview").asText() : null,
                         "movie",
                         movie.has("id") ? movie.get("id").asText() : null
@@ -178,5 +178,158 @@ public class MediaSearchService {
             }
         }
         return results;
+    }
+
+
+    public MediaSearchResult getDetails(String externalId, String type) {
+        return switch (type.toLowerCase()) {
+            case "movie" -> getMovieDetails(externalId);
+            case "show"  -> getShowDetails(externalId);
+            case "book"  -> getBookDetails(externalId);
+            case "game"  -> getGameDetails(externalId);
+            default -> throw new IllegalArgumentException(
+                    "Invalid type: " + type);
+        };
+    }
+
+    private MediaSearchResult getMovieDetails(String movieId) {
+        // single call with credits appended — one request instead of two
+        String url = "https://api.themoviedb.org/3/movie/" + movieId
+                + "?api_key=" + tmdbApiKey
+                + "&append_to_response=credits";
+
+        JsonNode movie = restClient.get()
+                .uri(url)
+                .retrieve()
+                .body(JsonNode.class);
+
+        if (movie == null) return null;
+
+        // extract director from credits
+        String director = null;
+        if (movie.has("credits") && movie.get("credits").has("crew")) {
+            for (JsonNode member : movie.get("credits").get("crew")) {
+                if (member.has("job") &&
+                        member.get("job").asText().equals("Director")) {
+                    director = member.get("name").asText();
+                    break;
+                }
+            }
+        }
+
+        String coverUrl = null;
+        if (movie.has("poster_path") && !movie.get("poster_path").isNull()) {
+            coverUrl = "https://image.tmdb.org/t/p/w500"
+                    + movie.get("poster_path").asText();
+        }
+
+        return new MediaSearchResult(
+                movie.has("title") ? movie.get("title").asText() : null,
+                director,
+                coverUrl,
+                movie.has("runtime") ? movie.get("runtime").asInt() : null,
+                movie.has("overview") ? movie.get("overview").asText() : null,
+                "movie",
+                movieId
+        );
+    }
+
+    private MediaSearchResult getShowDetails(String showId) {
+        String url = "https://api.themoviedb.org/3/tv/" + showId
+                + "?api_key=" + tmdbApiKey
+                + "&append_to_response=credits";
+
+        JsonNode show = restClient.get()
+                .uri(url)
+                .retrieve()
+                .body(JsonNode.class);
+
+        if (show == null) return null;
+
+        // for shows, look for "Executive Producer" or series creator
+        String creator = null;
+        if (show.has("created_by") && show.get("created_by").isArray()
+                && show.get("created_by").size() > 0) {
+            creator = show.get("created_by").get(0).get("name").asText();
+        }
+
+        String coverUrl = null;
+        if (show.has("poster_path") && !show.get("poster_path").isNull()) {
+            coverUrl = "https://image.tmdb.org/t/p/w500"
+                    + show.get("poster_path").asText();
+        }
+
+        return new MediaSearchResult(
+                show.has("name") ? show.get("name").asText() : null,
+                creator,
+                coverUrl,
+                show.has("number_of_episodes") ? show.get("number_of_episodes").asInt() : null,
+                show.has("overview") ? show.get("overview").asText() : null,
+                "show",
+                showId
+        );
+    }
+
+    private MediaSearchResult getBookDetails(String bookKey) {
+        // Open Library work details
+        String url = "https://openlibrary.org" + bookKey + ".json";
+
+        JsonNode book = restClient.get()
+                .uri(url)
+                .retrieve()
+                .body(JsonNode.class);
+
+        if (book == null) return null;
+
+        String description = null;
+        if (book.has("description")) {
+            JsonNode desc = book.get("description");
+            // description can be a string or an object with a "value" field
+            description = desc.isTextual() ? desc.asText()
+                    : desc.has("value") ? desc.get("value").asText() : null;
+        }
+
+        return new MediaSearchResult(
+                book.has("title") ? book.get("title").asText() : null,
+                null,  // author requires another call to /authors endpoint
+                null,  // cover requires cover_i from original search
+                null,
+                description,
+                "book",
+                bookKey
+        );
+    }
+
+    private MediaSearchResult getGameDetails(String gameId) {
+        String url = "https://api.rawg.io/api/games/" + gameId
+                + "?key=" + rawgApiKey;
+
+        JsonNode game = restClient.get()
+                .uri(url)
+                .retrieve()
+                .body(JsonNode.class);
+
+        if (game == null) return null;
+
+        String developer = null;
+        if (game.has("developers") && game.get("developers").isArray()
+                && game.get("developers").size() > 0) {
+            developer = game.get("developers").get(0).get("name").asText();
+        }
+
+        String coverUrl = null;
+        if (game.has("background_image") && !game.get("background_image").isNull()) {
+            coverUrl = game.get("background_image").asText();
+        }
+
+        return new MediaSearchResult(
+                game.has("name") ? game.get("name").asText() : null,
+                developer,
+                coverUrl,
+                null,
+                game.has("description_raw") ? game.get("description_raw").asText() : null,
+                "game",
+                gameId
+        );
     }
 }

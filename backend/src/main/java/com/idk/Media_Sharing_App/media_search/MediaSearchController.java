@@ -21,4 +21,12 @@ public class MediaSearchController {
             @RequestParam String type) {
         return ResponseEntity.ok(mediaSearchService.search(query, type));
     }
+
+    // GET /api/media/search/details?id=157336&type=movie
+    @GetMapping("/details")
+    public ResponseEntity<MediaSearchResult> getDetails(
+            @RequestParam String id,
+            @RequestParam String type) {
+        return ResponseEntity.ok(mediaSearchService.getDetails(id, type));
+    }
 }
