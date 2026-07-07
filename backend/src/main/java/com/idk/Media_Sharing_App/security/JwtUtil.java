@@ -14,6 +14,17 @@ public class JwtUtil {
     private final SecretKey key;
     private final long expiration;
 
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
+
+    public String generateRefreshToken() {
+        return UUID.randomUUID().toString();
+    }
+
+    public long getRefreshExpiration() {
+        return refreshExpiration;
+    }
+
     public JwtUtil(@Value("${jwt.secret}") String secret,
                    @Value("${jwt.expiration}") long expiration) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());

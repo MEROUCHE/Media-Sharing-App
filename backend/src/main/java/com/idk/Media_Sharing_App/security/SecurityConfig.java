@@ -38,6 +38,7 @@ public class SecurityConfig {
                         // public — no token needed
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                         // everything else requires a valid JWT
                         .anyRequest().authenticated()
                 )

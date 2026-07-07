@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+
 @Entity
 @Table(name = "group_members")
 @IdClass(GroupMember.GroupMemberId.class)

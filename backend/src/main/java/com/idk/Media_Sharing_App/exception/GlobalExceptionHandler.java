@@ -4,6 +4,7 @@ import com.idk.Media_Sharing_App.group.*;
 import com.idk.Media_Sharing_App.media_item.MediaItemNotFoundException;
 import com.idk.Media_Sharing_App.progress.InvalidProgressException;
 import com.idk.Media_Sharing_App.progress.ProgressNotFoundException;
+import com.idk.Media_Sharing_App.security.InvalidRefreshTokenException;
 import com.idk.Media_Sharing_App.user.EmailAlreadyExistsException;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UsernameAlreadyExistsException;
@@ -162,6 +163,13 @@ public class GlobalExceptionHandler {
             HttpClientErrorException ex) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(Map.of("error", "External API error: " + ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidRefreshToken(
+            InvalidRefreshTokenException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", ex.getMessage()));
     }
 
 }
