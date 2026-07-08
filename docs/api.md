@@ -17,18 +17,100 @@ Authorization: Bearer <token>
 
 | Status | Meaning |
 |--------|---------|
-| 400 | Bad request — missing or invalid fields |
-| 401 | Unauthorized — missing or invalid token |
-| 403 | Forbidden — not allowed to do this |
-| 404 | Resource not found |
-| 409 | Conflict — e.g. already a member |
-| 500 | Server error |
+| 400    | Bad request — missing or invalid fields |
+| 401    | Unauthorized — missing or invalid token |
+| 403    | Forbidden — not allowed to do this |
+| 404    | Resource not found |
+| 409    | Conflict — e.g. already a member |
+| 500    | Server error |
+| 429    | Too Many Requests |
 
 All errors return:
 ```json
 { "error": "Human-readable error message" }
 ```
 
+---
+### `POST /auth/login`
+
+login is login
+
+**Auth:** Required
+
+**Request Body:**
+
+```json
+{
+  "email": "string",
+  "password" : "string"
+}
+```
+**Response 200:**
+
+```json
+{
+  "message": "Logged in successfully"
+}
+```
+
+**Response 401:**
+
+```json
+{
+  "message": "Invalid email or password"
+}
+```
+---
+### `POST /auth/refresh`
+
+Get a new access token using a refresh token.
+
+**Auth:** Not required
+
+**Request Body:**
+
+```json
+{
+  "refreshToken": "string"
+}
+```
+
+**Response 200:**
+
+```json
+{
+  "token": "string",
+  "refreshToken": "string"
+}
+```
+**Response 401:**
+
+```json
+{
+  "error": "Invalid or expired refresh token"
+}
+```
+---
+### `POST /auth/logout`
+
+Revoke the refresh token.
+
+**Auth:** Required
+
+**Request Body:**
+
+```json
+{
+  "refreshToken": "string"
+}
+```
+**Response 200:**
+
+```json
+{
+  "message": "Logged out successfully"
+}
+```
 ---
 
 ## 👤 Users
