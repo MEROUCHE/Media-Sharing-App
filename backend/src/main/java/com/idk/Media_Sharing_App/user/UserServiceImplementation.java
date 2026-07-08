@@ -1,6 +1,7 @@
 package com.idk.Media_Sharing_App.user;
 
 import com.idk.Media_Sharing_App.exception.ForbiddenException;
+import com.idk.Media_Sharing_App.security.AuthService;
 import com.idk.Media_Sharing_App.security.SecurityUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,12 @@ public class UserServiceImplementation implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
-    public UserServiceImplementation(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImplementation(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthService authService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authService = authService;
     }
 
     @Override
@@ -80,34 +83,25 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public AuthResponse register(RegisterRequest request) {
-
-        // check email isn't taken
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
         }
-
-        // check username isn't taken
         if (userRepository.findByUsername(request.username()).isPresent()) {
             throw new UsernameAlreadyExistsException(request.username());
         }
 
-        // hash the password
         String hashedPassword = passwordEncoder.encode(request.password());
-
-        // build and save the user
         User user = new User();
         user.setUsername(request.username());
         user.setEmail(request.email());
         user.setPasswordHash(hashedPassword);
-        // createdAt/updatedAt set automatically by @PrePersist
+        user.setEmailVerified(false);  // ← starts unverified
 
         User saved = userRepository.save(user);
 
-        // return safe response
-        return new AuthResponse(
-                saved.getId(),
-                saved.getUsername(),
-                saved.getEmail()
-        );
+        // send verification email
+        authService.sendVerificationEmail(saved);  // ← NEW
+
+        return new AuthResponse(saved.getId(), saved.getUsername(), saved.getEmail());
     }
 }

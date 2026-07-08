@@ -39,6 +39,10 @@ public class User {
 
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
+
 
     public User() {}
     public User(UUID id, String username, String email, String passwordHash, String avatarUrl, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -62,6 +66,12 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
 
+
+
+    public boolean isEmailVerified() { return emailVerified; }
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
 
     public UUID getId() {
         return id;

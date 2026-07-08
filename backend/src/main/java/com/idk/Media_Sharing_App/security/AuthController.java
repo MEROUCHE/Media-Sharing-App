@@ -24,12 +24,44 @@ public class AuthController {
     @Autowired
     private RefreshTokenService refreshTokenService;
 
+    private final AuthService authService;
+
     public AuthController(AuthenticationManager authenticationManager,
                           JwtUtil jwtUtil,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          RefreshTokenService refreshTokenService,
+                          AuthService authService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.refreshTokenService = refreshTokenService;
+        this.authService = authService;
+    }
+
+    // GET /api/auth/verify-email?token=...
+    @GetMapping("/verify-email")
+    public ResponseEntity<Map<String, String>> verifyEmail(
+            @RequestParam String token) {
+        authService.verifyEmail(token);
+        return ResponseEntity.ok(Map.of("message", "Email verified successfully"));
+    }
+
+    // POST /api/auth/forgot-password
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(
+            @RequestBody @Valid ForgotPasswordRequest request) {
+        authService.sendPasswordResetEmail(request.email());
+        // always return success to prevent email enumeration
+        return ResponseEntity.ok(Map.of("message",
+                "If that email exists, a reset link has been sent"));
+    }
+
+    // POST /api/auth/reset-password
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request.token(), request.newPassword());
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
     }
 
     @PostMapping("/login")
@@ -45,6 +77,12 @@ public class AuthController {
             User user = userRepository.findByEmail(request.email()).get();
             String accessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+            if (!user.isEmailVerified()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error",
+                                "Email not verified. Check your inbox for the verification link."));
+            }
 
             return ResponseEntity.ok(new LoginResponse(
                     accessToken,

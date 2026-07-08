@@ -5,6 +5,7 @@ import com.idk.Media_Sharing_App.media_item.MediaItemNotFoundException;
 import com.idk.Media_Sharing_App.progress.InvalidProgressException;
 import com.idk.Media_Sharing_App.progress.ProgressNotFoundException;
 import com.idk.Media_Sharing_App.security.InvalidRefreshTokenException;
+import com.idk.Media_Sharing_App.security.InvalidTokenException;
 import com.idk.Media_Sharing_App.user.EmailAlreadyExistsException;
 import com.idk.Media_Sharing_App.user.UserNotFoundException;
 import com.idk.Media_Sharing_App.user.UsernameAlreadyExistsException;
@@ -150,12 +151,12 @@ public class GlobalExceptionHandler {
 
     // ----- for debuging -------
 
-    /*@ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex) {
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", ex.getMessage()));
-    }*/
+    }
 
 
     @ExceptionHandler(HttpClientErrorException.class)
@@ -169,6 +170,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleInvalidRefreshToken(
             InvalidRefreshTokenException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidToken(
+            InvalidTokenException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", ex.getMessage()));
     }
 
