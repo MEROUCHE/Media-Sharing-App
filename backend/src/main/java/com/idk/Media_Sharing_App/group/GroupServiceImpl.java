@@ -1,6 +1,7 @@
 package com.idk.Media_Sharing_App.group;
 
 import com.idk.Media_Sharing_App.common.PagedResponse;
+import com.idk.Media_Sharing_App.common.SanitizationService;
 import com.idk.Media_Sharing_App.group_member.GroupMember;
 import com.idk.Media_Sharing_App.group_member.GroupMemberRepository;
 import com.idk.Media_Sharing_App.media_item.MediaItem;
@@ -25,17 +26,20 @@ public class GroupServiceImpl implements GroupService {
     private final MediaItemRepository mediaItemRepository;
     private final UserRepository userRepository;
     private final ProgressRepository  progressRepository;
+    private final SanitizationService sanitizationService;
 
     public GroupServiceImpl(GroupRepository groupRepository,
                             GroupMemberRepository groupMemberRepository,
                             MediaItemRepository mediaItemRepository,
                             UserRepository userRepository,
-                            ProgressRepository progressRepository) {
+                            ProgressRepository progressRepository,
+                            SanitizationService sanitizationService) {
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.mediaItemRepository = mediaItemRepository;
         this.userRepository = userRepository;
         this.progressRepository = progressRepository;
+        this.sanitizationService = sanitizationService;
     }
 
     @Override
@@ -78,8 +82,8 @@ public class GroupServiceImpl implements GroupService {
                 .orElseThrow(() -> new UserNotFoundException(creatorId));
 
         Group group = new Group();
-        group.setName(request.name());
-        group.setDescription(request.description());
+        group.setName(sanitizationService.sanitize(request.name(), 100));
+        group.setDescription(sanitizationService.sanitize(request.description(), 500));
         group.setCreator(creator);
         group.setIsPublic(request.isPublic() != null ? request.isPublic() : false);
         group.setInviteCode(generateInviteCode());
@@ -159,10 +163,10 @@ public class GroupServiceImpl implements GroupService {
         }
 
         if (request.name() != null && !request.name().isBlank()) {
-            group.setName(request.name());
+            group.setName(sanitizationService.sanitize(request.name(), 100));
         }
         if (request.description() != null) {
-            group.setDescription(request.description());
+            group.setDescription(sanitizationService.sanitize(request.description(), 500));
         }
         if (request.isPublic() != null) {
             group.setIsPublic(request.isPublic());

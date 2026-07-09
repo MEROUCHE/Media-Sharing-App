@@ -1,5 +1,6 @@
 package com.idk.Media_Sharing_App.progress;
 
+import com.idk.Media_Sharing_App.common.SanitizationService;
 import com.idk.Media_Sharing_App.group.Group;
 import com.idk.Media_Sharing_App.group.GroupNotFoundException;
 import com.idk.Media_Sharing_App.group.GroupRepository;
@@ -25,17 +26,20 @@ public class ProgressServiceImpl implements ProgressService {
     private final GroupMemberRepository groupMemberRepository;
     private final MediaItemRepository mediaItemRepository;
     private final UserRepository userRepository;
+    private final SanitizationService sanitizationService;
 
     public ProgressServiceImpl(ProgressRepository progressRepository,
                                GroupRepository groupRepository,
                                GroupMemberRepository groupMemberRepository,
                                MediaItemRepository mediaItemRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               SanitizationService sanitizationService) {
         this.progressRepository = progressRepository;
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.mediaItemRepository = mediaItemRepository;
         this.userRepository = userRepository;
+        this.sanitizationService = sanitizationService;
     }
 
     @Override
@@ -90,7 +94,7 @@ public class ProgressServiceImpl implements ProgressService {
                 });
 
         progress.setCurrentUnit(request.currentUnit());
-        progress.setNote(request.note());
+        progress.setNote(sanitizationService.sanitize(request.note(), 500));
 
         // auto-set status if not provided
         if (request.status() != null) {

@@ -1,5 +1,6 @@
 package com.idk.Media_Sharing_App.media_item;
 
+import com.idk.Media_Sharing_App.common.SanitizationService;
 import com.idk.Media_Sharing_App.group.Group;
 import com.idk.Media_Sharing_App.group.GroupNotFoundException;
 import com.idk.Media_Sharing_App.group.GroupRepository;
@@ -25,17 +26,20 @@ public class MediaItemServiceImpl implements MediaItemService {
     private final GroupMemberRepository groupMemberRepository;
     private final ProgressRepository progressRepository;
     private final UserRepository userRepository;
+    private final SanitizationService sanitizationService;
 
     public MediaItemServiceImpl(MediaItemRepository mediaItemRepository,
                                 GroupRepository groupRepository,
                                 GroupMemberRepository groupMemberRepository,
                                 ProgressRepository progressRepository,
-                                UserRepository userRepository) {
+                                UserRepository userRepository,
+                                SanitizationService sanitizationService) {
         this.mediaItemRepository = mediaItemRepository;
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.progressRepository = progressRepository;
         this.userRepository = userRepository;
+        this.sanitizationService = sanitizationService;
     }
 
     @Override
@@ -79,11 +83,11 @@ public class MediaItemServiceImpl implements MediaItemService {
         MediaItem item = new MediaItem();
         item.setGroup(group);
         item.setType(request.type());
-        item.setTitle(request.title());
-        item.setCreator(request.creator());
-        item.setCoverUrl(request.coverUrl());
+        item.setTitle(sanitizationService.sanitize(request.title(), 200));
+        item.setCreator(sanitizationService.sanitize(request.creator(), 100));
+        item.setDescription(sanitizationService.sanitize(request.description(), 1000));
+        item.setCoverUrl(sanitizationService.sanitize(request.coverUrl(), 500));
         item.setTotalUnits(request.totalUnits());
-        item.setDescription(request.description());
         item.setAddedBy(addedBy);
 
         MediaItem saved = mediaItemRepository.save(item);

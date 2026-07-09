@@ -17,11 +17,14 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final RateLimitFilter rateLimitFilter;
+    private final InputValidationFilter inputValidationFilter;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter,
-                          RateLimitFilter rateLimitFilter) {
+                          RateLimitFilter rateLimitFilter,
+                          InputValidationFilter inputValidationFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.rateLimitFilter = rateLimitFilter;
+        this.inputValidationFilter = inputValidationFilter;
     }
 
     @Bean
@@ -50,6 +53,7 @@ public class SecurityConfig {
                 )
 
                 // plug in our JWT filter before Spring's default auth filter
+                .addFilterBefore(inputValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

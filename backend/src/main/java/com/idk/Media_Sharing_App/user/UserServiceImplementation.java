@@ -1,5 +1,6 @@
 package com.idk.Media_Sharing_App.user;
 
+import com.idk.Media_Sharing_App.common.SanitizationService;
 import com.idk.Media_Sharing_App.exception.ForbiddenException;
 import com.idk.Media_Sharing_App.security.AuthService;
 import com.idk.Media_Sharing_App.security.SecurityUtils;
@@ -18,11 +19,13 @@ public class UserServiceImplementation implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final SanitizationService  sanitizationService;
 
-    public UserServiceImplementation(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthService authService) {
+    public UserServiceImplementation(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthService authService, SanitizationService sanitizationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
+        this.sanitizationService = sanitizationService;
     }
 
     @Override
@@ -51,10 +54,10 @@ public class UserServiceImplementation implements UserService {
 
 
         if (request.username() != null && !request.username().isBlank()) {
-            user.setUsername(request.username());
+            user.setUsername(sanitizationService.sanitize(request.username(), 30));
         }
         if (request.avatarUrl() != null) {
-            user.setAvatarUrl(request.avatarUrl());
+            user.setAvatarUrl(sanitizationService.sanitize(request.avatarUrl(), 500));
         }
 
         User saved = userRepository.save(user);
@@ -92,8 +95,8 @@ public class UserServiceImplementation implements UserService {
 
         String hashedPassword = passwordEncoder.encode(request.password());
         User user = new User();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
+        user.setUsername(sanitizationService.sanitize(request.username(), 30));
+        user.setEmail(request.email().trim().toLowerCase()); // email — don't strip, just normalize
         user.setPasswordHash(hashedPassword);
         user.setEmailVerified(false);  // ← starts unverified
 
