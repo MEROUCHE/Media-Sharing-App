@@ -35,6 +35,7 @@ public class AuthService {
     }
 
     // called after register
+
     @Transactional
     public void sendVerificationEmail(User user) {
         emailTokenRepository.deleteByUser(user);
@@ -45,11 +46,13 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusHours(24));
         emailTokenRepository.save(token);
 
+        // build the full link here, pass it to EmailService
+        String verificationLink = baseUrl + "/api/auth/verify-email?token=" + token.getToken();
+
         emailService.sendVerificationEmail(
                 user.getEmail(),
                 user.getUsername(),
-                token.getToken(),
-                baseUrl
+                verificationLink
         );
     }
 
@@ -79,8 +82,6 @@ public class AuthService {
     // called when user requests password reset
     @Transactional
     public void sendPasswordResetEmail(String email) {
-        // always return success even if email not found
-        // prevents email enumeration attacks
         userRepository.findByEmail(email).ifPresent(user -> {
             passwordResetTokenRepository.deleteByUser(user);
 
@@ -90,11 +91,13 @@ public class AuthService {
             token.setExpiresAt(LocalDateTime.now().plusHours(1));
             passwordResetTokenRepository.save(token);
 
+            // build the full link here
+            String resetLink = baseUrl + "/api/auth/reset-password?token=" + token.getToken();
+
             emailService.sendPasswordResetEmail(
                     user.getEmail(),
                     user.getUsername(),
-                    token.getToken(),
-                    baseUrl
+                    resetLink
             );
         });
     }

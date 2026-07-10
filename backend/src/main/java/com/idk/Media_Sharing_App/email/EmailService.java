@@ -14,9 +14,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationEmail(String to, String username, String token,
-                                      String baseUrl) {
-        String link = baseUrl + "/api/auth/verify-email?token=" + token;
+    public void sendVerificationEmail(String to, String username, String verificationLink) {
         String subject = "Verify your email";
         String body = """
                 Hi %s,
@@ -28,14 +26,12 @@ public class EmailService {
                 This link expires in 24 hours.
                 
                 If you didn't create an account, ignore this email.
-                """.formatted(username, link);
+                """.formatted(username, verificationLink);
 
         sendEmail(to, subject, body);
     }
 
-    public void sendPasswordResetEmail(String to, String username, String token,
-                                       String baseUrl) {
-        String link = baseUrl + "/api/auth/reset-password?token=" + token;
+    public void sendPasswordResetEmail(String to, String username, String resetLink) {
         String subject = "Reset your password";
         String body = """
                 Hi %s,
@@ -47,7 +43,7 @@ public class EmailService {
                 This link expires in 1 hour.
                 
                 If you didn't request this, ignore this email.
-                """.formatted(username, link);
+                """.formatted(username, resetLink);
 
         sendEmail(to, subject, body);
     }
@@ -56,7 +52,7 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom("onboarding@resend.dev");  // ← update with your domain
+            helper.setFrom("onboarding@resend.dev");
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(body, false);
