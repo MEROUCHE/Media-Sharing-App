@@ -4,6 +4,7 @@ import com.idk.Media_Sharing_App.email.EmailService;
 import com.idk.Media_Sharing_App.user.User;
 import com.idk.Media_Sharing_App.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,7 @@ public class AuthService {
     // called after register
 
     @Transactional
+    @Async
     public void sendVerificationEmail(User user) {
         emailTokenRepository.deleteByUser(user);
 
