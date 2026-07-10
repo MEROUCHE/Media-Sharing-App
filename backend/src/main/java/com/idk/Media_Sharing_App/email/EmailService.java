@@ -1,20 +1,24 @@
 package com.idk.Media_Sharing_App.email;
 
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import jakarta.mail.internet.MimeMessage;
+import org.springframework.web.client.RestClient;
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${RESEND_API_KEY}")
+    private String resendApiKey;
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    private final RestClient restClient;
+
+    public EmailService() {
+        this.restClient = RestClient.create();
     }
 
-    public void sendVerificationEmail(String to, String username, String verificationLink) {
+    public void sendVerificationEmail(String to, String username,
+                                      String verificationLink) {
         String subject = "Verify your email";
         String body = """
                 Hi %s,
@@ -31,7 +35,8 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
-    public void sendPasswordResetEmail(String to, String username, String resetLink) {
+    public void sendPasswordResetEmail(String to, String username,
+                                       String resetLink) {
         String subject = "Reset your password";
         String body = """
                 Hi %s,
@@ -50,13 +55,21 @@ public class EmailService {
 
     private void sendEmail(String to, String subject, String body) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom("onboarding@resend.dev");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(body, false);
-            mailSender.send(message);
+            Map<String, Object> payload = Map.of(
+                    "from", "onboarding@resend.dev",
+                    "to", new String[]{to},
+                    "subject", subject,
+                    "text", body
+            );
+
+            restClient.post()
+                    .uri("https://api.resend.com/emails")
+                    .header("Authorization", "Bearer " + resendApiKey)
+                    .header("Content-Type", "application/json")
+                    .body(payload)
+                    .retrieve()
+                    .toBodilessEntity();
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to send email: " + e.getMessage());
         }

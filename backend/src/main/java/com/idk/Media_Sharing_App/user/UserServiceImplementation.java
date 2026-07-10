@@ -103,7 +103,7 @@ public class UserServiceImplementation implements UserService {
         User saved = userRepository.save(user);
 
         // send verification email
-        authService.sendVerificationEmail(saved);  // ← NEW
+        authService.sendVerificationEmail(saved);
 
         return new AuthResponse(saved.getId(), saved.getUsername(), saved.getEmail());
     }
