@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-http://localhost:8080/api
+https://your-railway-url.up.railway.app/api
 ```
 
 ## Authentication
@@ -112,6 +112,55 @@ Revoke the refresh token.
 }
 ```
 ---
+### `GET /auth/verify-email`
+
+Verify email address using token from verification email.
+
+**Auth:** Not required
+
+**Query Par1ams:**
+
+| Param | Type | Description |
+|-------|------|-------------|
+| token     | string | Token from verification email |
+
+
+**Response 200:**
+
+```json
+{
+  "message": "Email verified successfully"
+}
+```
+
+**Response 400:**
+
+```json
+{ 
+  "error": "Invalid verification token"
+}
+```
+---
+### `POST /auth/resend-verification`
+Resend the verification email.
+
+**Auth:** Not required
+
+**Request Body:**
+
+```json
+{ 
+  "email": "string"
+}
+```
+**Response 200:**
+
+```json
+{ 
+  "message": "If that email exists and is unverified, a new link has been sent"
+}
+```
+---
 
 ## 👤 Users
 
@@ -141,6 +190,50 @@ Get a user's public profile.
 { "error": "User not found" }
 ```
 
+---
+### `POST /auth/forgot-password`
+Request a password reset email.
+
+**Auth:** Not required
+
+**Request Body:**
+```json
+{
+  "email": "string"
+}
+```
+**Response 200:**
+```json
+{
+    "message": "If that email exists, a reset link has been sent" 
+}
+```
+---
+### `POST /auth/reset-password`
+Reset password using token from reset email.
+
+**Auth:** Not required
+
+**Request Body:**
+```json
+{
+  "token": "string",
+  "newPassword": "string"
+}
+```
+**Response 200:**
+
+```json
+{ 
+  "message": "Password reset successfully"
+}
+```
+**Response 400:**
+```json
+{ 
+  "error": "Reset token expired"
+}
+```
 ---
 
 ### `PATCH /users/:id`
