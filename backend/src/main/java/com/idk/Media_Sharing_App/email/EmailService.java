@@ -56,7 +56,7 @@ public class EmailService {
     private void sendEmail(String to, String subject, String body) {
         try {
             Map<String, Object> payload = Map.of(
-                    "from", "onboarding@resend.dev",
+                    "from", "onboarding@smugless.lol",
                     "to", new String[]{to},
                     "subject", subject,
                     "text", body
