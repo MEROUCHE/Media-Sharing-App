@@ -35,7 +35,7 @@ All errors return:
 
 login is login
 
-**Auth:** Required
+**Auth:** not Required
 
 **Request Body:**
 
@@ -110,6 +110,32 @@ Revoke the refresh token.
 {
   "message": "Logged out successfully"
 }
+```
+---
+### `POST /users/register`
+
+rigester and create a new acount.
+
+**Auth:** not Required
+
+**Request Body:**
+
+```json
+{
+  "username": "miss",
+  "email": "exemple@gmail.com",
+  "password": "secret123"
+}
+```
+**Response 200:**
+
+```json
+{
+  "id": "567ace4a-8396-3343-b3dc-5fc2f91aff53",
+  "username": "miss",
+  "email": "exemple@gmail.com"
+}
+
 ```
 ---
 ### `GET /auth/verify-email`
