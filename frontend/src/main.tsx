@@ -4,11 +4,27 @@ import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
-import { worker } from "./mocks/browser";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
-worker.start().then(() => {
+async function prepareApp() {
+  if (import.meta.env.VITE_USE_MOCK === "true") {
+    const { worker } = await import("./mocks/browser");
+    return worker.start({
+      onUnhandledRequest: "bypass",
+    });
+  }
+  return Promise.resolve();
+}
+
+prepareApp().then(() => {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
