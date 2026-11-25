@@ -19,6 +19,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -27,18 +28,19 @@ public class AuthService {
                        PasswordResetTokenRepository passwordResetTokenRepository,
                        UserRepository userRepository,
                        EmailService emailService,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       RefreshTokenRepository refreshTokenRepository) {
         this.emailTokenRepository = emailTokenRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
-    // called after register
-
+    // called after register — token is saved in the current transaction,
+    // and EmailService.sendVerificationEmail runs @Async on a background thread.
     @Transactional
-    @Async
     public void sendVerificationEmail(User user) {
         emailTokenRepository.deleteByUser(user);
 
@@ -48,7 +50,6 @@ public class AuthService {
         token.setExpiresAt(LocalDateTime.now().plusHours(24));
         emailTokenRepository.save(token);
 
-        // build the full link here, pass it to EmailService
         String verificationLink = baseUrl + "/api/auth/verify-email?token=" + token.getToken();
 
         emailService.sendVerificationEmail(
@@ -93,8 +94,7 @@ public class AuthService {
             token.setExpiresAt(LocalDateTime.now().plusHours(1));
             passwordResetTokenRepository.save(token);
 
-            // build the full link here
-            String resetLink = baseUrl + "/api/auth/reset-password?token=" + token.getToken();
+            String resetLink = baseUrl + "/reset-password?token=" + token.getToken();
 
             emailService.sendPasswordResetEmail(
                     user.getEmail(),
@@ -126,7 +126,8 @@ public class AuthService {
         resetToken.setUsed(true);
         passwordResetTokenRepository.save(resetToken);
 
-        // revoke all refresh tokens for security
-        // (someone else might have used the reset)
+        // FIX [Medium]: revoke all existing refresh tokens after a password reset
+        // so any session that might have been compromised is invalidated
+        refreshTokenRepository.deleteByUser(user);
     }
 }

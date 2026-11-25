@@ -15,14 +15,13 @@ import MediaDetailPage from "./pages/MediaDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import { Loader2 } from "lucide-react";
 
-// Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+      <div className="min-h-screen flex items-center justify-center bg-[#09090B] text-zinc-400">
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
       </div>
     );
   }
@@ -34,14 +33,13 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
-// Public Only Route Component (redirects to dashboard if already logged in)
 const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+      <div className="min-h-screen flex items-center justify-center bg-[#09090B] text-zinc-400">
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
       </div>
     );
   }
@@ -58,7 +56,7 @@ export function App() {
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
-          <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+          <div className="min-h-screen bg-[#09090B] text-zinc-100 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
             <Navbar />
             <main className="flex-1">
               <Routes>

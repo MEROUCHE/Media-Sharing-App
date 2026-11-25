@@ -42,11 +42,23 @@ public class ProgressServiceImpl implements ProgressService {
         this.sanitizationService = sanitizationService;
     }
 
+    private void ensureCanViewGroup(Group group) {
+        if (!Boolean.TRUE.equals(group.getIsPublic())) {
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+            User currentUser = userRepository.findById(currentUserId)
+                    .orElseThrow(() -> new UserNotFoundException(currentUserId));
+            if (!groupMemberRepository.existsByGroupAndUser(group, currentUser)) {
+                throw new NotGroupMemberException();
+            }
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public AllProgressResponse getAllProgress(UUID groupId, UUID mediaItemId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+        ensureCanViewGroup(group);
 
         MediaItem item = getMediaItemInGroup(mediaItemId, groupId);
 
@@ -110,6 +122,9 @@ public class ProgressServiceImpl implements ProgressService {
     @Override
     @Transactional(readOnly = true)
     public ProgressDetailResponse getUserProgress(UUID groupId, UUID mediaItemId, UUID userId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException(groupId));
+        ensureCanViewGroup(group);
         MediaItem item = getMediaItemInGroup(mediaItemId, groupId);
 
         User user = userRepository.findById(userId)

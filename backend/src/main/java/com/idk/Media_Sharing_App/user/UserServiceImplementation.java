@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -19,9 +17,12 @@ public class UserServiceImplementation implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
-    private final SanitizationService  sanitizationService;
+    private final SanitizationService sanitizationService;
 
-    public UserServiceImplementation(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthService authService, SanitizationService sanitizationService) {
+    public UserServiceImplementation(UserRepository userRepository,
+                                     PasswordEncoder passwordEncoder,
+                                     AuthService authService,
+                                     SanitizationService sanitizationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
@@ -42,8 +43,8 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    @Transactional
     public UserProfileResponse updateUser(UUID id, UpdateUserRequest request) {
-
         UUID currentUserId = SecurityUtils.getCurrentUserId();
 
         if (!currentUserId.equals(id)) {
@@ -51,7 +52,6 @@ public class UserServiceImplementation implements UserService {
         }
 
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-
 
         if (request.username() != null && !request.username().isBlank()) {
             user.setUsername(sanitizationService.sanitize(request.username(), 30));
@@ -65,14 +65,18 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(UUID id) {
+        // FIX [Critical]: authorization check — users may only delete their own account
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        if (!currentUserId.equals(id)) {
+            throw new ForbiddenException("You can only delete your own account");
+        }
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
     }
-
-
 
     private UserProfileResponse toProfileResponse(User user) {
         return new UserProfileResponse(
@@ -85,6 +89,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException(request.email());
@@ -96,13 +101,13 @@ public class UserServiceImplementation implements UserService {
         String hashedPassword = passwordEncoder.encode(request.password());
         User user = new User();
         user.setUsername(sanitizationService.sanitize(request.username(), 30));
-        user.setEmail(request.email().trim().toLowerCase()); // email — don't strip, just normalize
+        user.setEmail(request.email().trim().toLowerCase());
         user.setPasswordHash(hashedPassword);
-        user.setEmailVerified(false);  // ← starts unverified
+        user.setEmailVerified(false);
 
         User saved = userRepository.save(user);
 
-        // send verification email
+        // send verification email (runs async via @EnableAsync on main class)
         authService.sendVerificationEmail(saved);
 
         return new AuthResponse(saved.getId(), saved.getUsername(), saved.getEmail());

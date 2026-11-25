@@ -1,61 +1,151 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────
+   MEDIASHARE — GLOBAL DESIGN SYSTEM
+   Palette: zinc-950 canvas · zinc-900 cards · indigo-500 accent
+   Typography: Plus Jakarta Sans (UI) · JetBrains Mono (data/code)
+───────────────────────────────────────────────────────────────── */
+
 @layer base {
+  :root {
+    --bg-canvas:   #09090b;   /* zinc-950 */
+    --bg-card:     #111113;   /* zinc-900 */
+    --bg-raised:   #18181b;   /* zinc-800 tone */
+    --border:      rgba(39,39,42,0.9);   /* zinc-800/90 */
+    --border-muted:rgba(39,39,42,0.5);
+    --accent:      #6366f1;   /* indigo-500 */
+    --accent-hover:#818cf8;   /* indigo-400 */
+    --text-primary:  #fafafa;
+    --text-secondary:#a1a1aa;  /* zinc-400 */
+    --text-muted:    #71717a;  /* zinc-500 */
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #020617;
-    color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  /* JetBrains Mono for all data/mono contexts */
+  .font-mono,
+  [class*="tabular"] {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-feature-settings: "tnum";
+  }
+
+  /* Tight heading tracking — Linear-style */
+  h1, h2, h3 {
+    letter-spacing: -0.025em;
   }
 }
 
-/* Custom modern scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-canvas); }
+::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+/* ── Surface tokens ─────────────────────────────────────────────
+   Replace heavy glassmorphism with crisp elevation layers.
+   glass-panel / glass-card now use solid zinc surfaces with a
+   subtle 1px border — cleaner, more legible, Linear-inspired.
+───────────────────────────────────────────────────────────────── */
+
+/* Primary card surface */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
 }
 
-::-webkit-scrollbar-track {
-  background: #090d16;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-/* Glassmorphism helpers */
+/* Legacy glass-panel compat — now a solid elevated surface */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
 }
 
+/* Legacy glass-card compat */
 .glass-card {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-muted);
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.35);
-  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(99,102,241,0.3);
+  background: #1c1c1f;
 }
 
-/* Ambient glows */
+/* ── Accent glows — muted, editorial ───────────────────────────── */
 .glow-indigo {
-  box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 40px -15px rgba(99,102,241,0.12);
 }
 
 .glow-amber {
-  box-shadow: 0 0 50px -10px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 40px -15px rgba(245,158,11,0.10);
 }
 
 .glow-emerald {
-  box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 40px -15px rgba(16,185,129,0.10);
+}
+
+/* ── Progress bar ───────────────────────────────────────────────── */
+.progress-bar {
+  height: 2px;
+  background: var(--border);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* ── Status badge tokens ────────────────────────────────────────── */
+.badge-finished   { background:#052e16; color:#4ade80; border:1px solid #14532d; }
+.badge-in-progress{ background:#1e1b4b; color:#a5b4fc; border:1px solid #312e81; }
+.badge-not-started{ background:#18181b; color:#71717a;  border:1px solid #3f3f46; }
+
+/* ── Focus ring ─────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Rank medal tokens ──────────────────────────────────────────── */
+.rank-gold   { background:#78350f; color:#fbbf24; }
+.rank-silver { background:#27272a; color:#d4d4d8; }
+.rank-bronze { background:#292524; color:#a16207; }
+.rank-other  { background:#18181b; color:#71717a; }
+
+/* ── Smooth page transitions ────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.2s ease both;
+}
+
+/* ── Skeleton loader ────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #18181b 25%, #27272a 50%, #18181b 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
 }

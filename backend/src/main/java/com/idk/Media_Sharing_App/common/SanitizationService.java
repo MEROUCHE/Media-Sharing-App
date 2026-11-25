@@ -5,16 +5,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class SanitizationService {
 
-    // strips all HTML tags and trims whitespace
+    /**
+     * FIX [Medium]: XSS bypass via HTML entity decoding.
+     * Previous implementation stripped tags THEN decoded entities,
+     * allowing "&lt;script&gt;" to bypass tag removal and decode to "<script>".
+     *
+     * Fixed order: decode entities FIRST, then strip all HTML tags and dangerous patterns.
+     * Note: OWASP AntiSamy is on the classpath — integrate it here if stricter policy is needed.
+     */
     public String sanitize(String input) {
         if (input == null) return null;
         return input
-                .replaceAll("<[^>]*>", "")    // remove HTML tags
-                .replaceAll("&lt;", "<")       // decode HTML entities
+                // Step 1: decode HTML entities first (so encoded tags are visible for stripping)
+                .replaceAll("&lt;", "<")
                 .replaceAll("&gt;", ">")
                 .replaceAll("&amp;", "&")
-                .replaceAll("javascript:", "") // remove javascript: protocol
-                .replaceAll("on\\w+=\"[^\"]*\"", "") // remove event handlers
+                .replaceAll("&quot;", "\"")
+                .replaceAll("&#x27;", "'")
+                // Step 2: strip all resulting HTML tags
+                .replaceAll("<[^>]*>", "")
+                // Step 3: remove dangerous protocols and event handlers
+                .replaceAll("(?i)javascript:", "")
+                .replaceAll("(?i)data:", "")
+                .replaceAll("(?i)vbscript:", "")
+                .replaceAll("(?i)on\\w+\\s*=\\s*\"[^\"]*\"", "")
+                .replaceAll("(?i)on\\w+\\s*=\\s*'[^']*'", "")
                 .trim();
     }
 

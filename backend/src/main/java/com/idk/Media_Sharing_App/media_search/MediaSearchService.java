@@ -182,7 +182,19 @@ public class MediaSearchService {
 
 
     public MediaSearchResult getDetails(String externalId, String type) {
-        return switch (type.toLowerCase()) {
+        if (externalId == null || externalId.isBlank()) {
+            throw new IllegalArgumentException("externalId is required");
+        }
+        String lowerType = type.toLowerCase();
+        if (lowerType.equals("book")) {
+            // OpenLibrary keys look like /works/OL12345W — prevent SSRF / path traversal
+            if (!externalId.matches("^/works/OL[0-9A-Za-z]+$")) {
+                throw new IllegalArgumentException("Invalid OpenLibrary book key");
+            }
+        } else if (!externalId.matches("^[0-9a-zA-Z_-]+$")) {
+            throw new IllegalArgumentException("Invalid externalId format");
+        }
+        return switch (lowerType) {
             case "movie" -> getMovieDetails(externalId);
             case "show"  -> getShowDetails(externalId);
             case "book"  -> getBookDetails(externalId);

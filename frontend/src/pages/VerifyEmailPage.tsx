@@ -25,7 +25,7 @@ export const VerifyEmailPage: React.FC = () => {
       } catch (err: any) {
         setError(
           err?.response?.data?.error ||
-            "Invalid or expired verification token. Please register again or request support.",
+            "Invalid or expired verification token.",
         );
       } finally {
         setLoading(false);
@@ -36,52 +36,52 @@ export const VerifyEmailPage: React.FC = () => {
   }, [token]);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-slate-950">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-5 shadow-2xl">
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-4 bg-[#09090B]">
+      <div className="w-full max-w-sm bg-[#111113] border border-zinc-800/80 rounded-xl p-6 text-center space-y-4 animate-fade-up">
         {loading ? (
-          <div className="space-y-4 py-8">
-            <Loader2 className="w-10 h-10 animate-spin text-indigo-400 mx-auto" />
-            <p className="text-slate-400 text-sm">Verifying your email address...</p>
+          <div className="space-y-3 py-6">
+            <Loader2 className="w-6 h-6 animate-spin text-indigo-400 mx-auto" />
+            <p className="text-zinc-400 text-xs">Verifying your email...</p>
           </div>
         ) : success ? (
-          <div className="space-y-4">
-            <div className="inline-flex p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-2xl text-emerald-400">
-              <CheckCircle2 className="w-10 h-10" />
+          <div className="space-y-3">
+            <div className="inline-flex p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
-            <h2 className="text-2xl font-bold text-white">Email Verified!</h2>
-            <p className="text-sm text-slate-400">
-              Your account has been successfully verified. You can now log in and start tracking media.
+            <h2 className="text-lg font-bold text-zinc-100">Email Verified</h2>
+            <p className="text-xs text-zinc-400">
+              Your account is active. You can now sign in and start tracking media.
             </p>
             <div className="pt-2">
               <Link
                 to="/login"
-                className="inline-block py-2.5 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition"
+                className="inline-block py-2 px-5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-medium rounded-lg transition"
               >
-                Log In Now
+                Sign In
               </Link>
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="inline-flex p-3 bg-rose-500/20 border border-rose-500/30 rounded-2xl text-rose-400">
-              <XCircle className="w-10 h-10" />
+          <div className="space-y-3">
+            <div className="inline-flex p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400">
+              <XCircle className="w-7 h-7" />
             </div>
-            <h2 className="text-2xl font-bold text-white">Verification Failed</h2>
-            <p className="text-sm text-rose-300 bg-rose-950/40 p-3 rounded-xl border border-rose-800/60">
+            <h2 className="text-lg font-bold text-zinc-100">Verification Failed</h2>
+            <p className="text-xs text-rose-300 bg-rose-500/10 p-3 rounded-lg border border-rose-500/20">
               {error}
             </p>
-            <div className="pt-2 flex justify-center gap-3">
+            <div className="pt-2 flex justify-center gap-2">
               <Link
                 to="/register"
-                className="py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition"
+                className="py-2 px-3.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium rounded-lg transition"
               >
-                Try Registering
+                Register
               </Link>
               <Link
                 to="/login"
-                className="py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition"
+                className="py-2 px-3.5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-medium rounded-lg transition"
               >
-                Go to Login
+                Sign In
               </Link>
             </div>
           </div>

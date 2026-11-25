@@ -51,21 +51,21 @@ public class RateLimitFilter extends OncePerRequestFilter {
         Bucket bucket = getBucket(ip, path);
 
         if (bucket.tryConsume(1)) {
-            // request allowed — continue
             filterChain.doFilter(request, response);
         } else {
-            // rate limit exceeded
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write("{\"error\": \"Too many requests — slow down\"}");
         }
     }
 
+    /**
+     * FIX [High]: always use the real socket address (request.getRemoteAddr()).
+     * X-Forwarded-For is intentionally NOT trusted because it is trivially spoofable
+     * by clients. If this application is ever deployed behind a trusted reverse proxy
+     * (nginx, AWS ALB, etc.), add an application property and validate only then.
+     */
     private String getClientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
-        }
         return request.getRemoteAddr();
     }
 }

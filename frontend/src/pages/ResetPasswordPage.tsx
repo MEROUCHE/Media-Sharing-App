@@ -49,44 +49,46 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-slate-950">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-4 bg-[#09090B]">
+      <div className="w-full max-w-sm bg-[#111113] border border-zinc-800/80 rounded-xl p-6 sm:p-7 space-y-5 animate-fade-up">
         {success ? (
-          <div className="text-center space-y-4">
-            <div className="inline-flex p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-2xl text-emerald-400">
-              <CheckCircle2 className="w-8 h-8" />
+          <div className="text-center space-y-3 py-2">
+            <div className="inline-flex p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
-            <h2 className="text-xl font-bold text-white">Password Reset Complete</h2>
-            <p className="text-sm text-slate-400">
-              Your password has been changed successfully. You can now log in with your new password.
+            <h2 className="text-lg font-bold text-zinc-100">Password Updated</h2>
+            <p className="text-xs text-zinc-400">
+              Your password has been changed. You can now sign in.
             </p>
             <div className="pt-2">
               <button
                 onClick={() => navigate("/login")}
-                className="py-2.5 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition"
+                className="py-2 px-5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-medium rounded-lg transition"
               >
-                Log In
+                Sign In
               </button>
             </div>
           </div>
         ) : (
           <>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-white">Reset Your Password</h1>
-              <p className="text-sm text-slate-400">
-                Enter your reset token and your new password.
+            <div className="space-y-1">
+              <h1 className="text-xl font-bold text-zinc-100 tracking-tight">
+                Set New Password
+              </h1>
+              <p className="text-xs text-zinc-400">
+                Enter your reset token and choose a new password.
               </p>
             </div>
 
             {error && (
-              <div className="p-3 text-sm text-rose-300 bg-rose-950/40 border border-rose-800/60 rounded-xl">
+              <div className="p-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
                   Reset Token
                 </label>
                 <input
@@ -95,16 +97,16 @@ export const ResetPasswordPage: React.FC = () => {
                   placeholder="Paste token from email"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-sm placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+                  className="w-full px-3.5 py-2 bg-[#09090B] border border-zinc-800 rounded-lg text-zinc-100 font-mono text-xs placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-                  New Password (min. 6 characters)
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
+                  New Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-3" />
+                  <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
                   <input
                     type="password"
                     required
@@ -112,17 +114,17 @@ export const ResetPasswordPage: React.FC = () => {
                     placeholder="••••••••"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm transition"
+                    className="w-full pl-9 pr-3.5 py-2 bg-[#09090B] border border-zinc-800 rounded-lg text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 text-xs transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-                  Confirm New Password
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
+                  Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-3" />
+                  <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
                   <input
                     type="password"
                     required
@@ -130,7 +132,7 @@ export const ResetPasswordPage: React.FC = () => {
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm transition"
+                    className="w-full pl-9 pr-3.5 py-2 bg-[#09090B] border border-zinc-800 rounded-lg text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 text-xs transition"
                   />
                 </div>
               </div>
@@ -138,15 +140,15 @@ export const ResetPasswordPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg transition disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-medium rounded-lg transition disabled:opacity-50"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Set New Password"}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reset Password"}
               </button>
             </form>
 
             <div className="text-center">
-              <Link to="/login" className="text-xs text-slate-400 hover:text-white transition">
-                Remember your password? Log in
+              <Link to="/login" className="text-xs text-zinc-400 hover:text-zinc-100 transition">
+                Back to Sign In
               </Link>
             </div>
           </>

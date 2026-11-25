@@ -42,11 +42,23 @@ public class MediaItemServiceImpl implements MediaItemService {
         this.sanitizationService = sanitizationService;
     }
 
+    private void ensureCanViewGroup(Group group) {
+        if (!Boolean.TRUE.equals(group.getIsPublic())) {
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+            User currentUser = userRepository.findById(currentUserId)
+                    .orElseThrow(() -> new UserNotFoundException(currentUserId));
+            if (!groupMemberRepository.existsByGroupAndUser(group, currentUser)) {
+                throw new NotGroupMemberException();
+            }
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<MediaItemResponse> getMediaItems(UUID groupId, String type) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+        ensureCanViewGroup(group);
 
         List<MediaItem> items;
 
@@ -99,6 +111,7 @@ public class MediaItemServiceImpl implements MediaItemService {
     public MediaItemDetailResponse getMediaItemById(UUID groupId, UUID mediaId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+        ensureCanViewGroup(group);
 
         MediaItem item = mediaItemRepository.findById(mediaId)
                 .orElseThrow(() -> new MediaItemNotFoundException(mediaId));

@@ -46,8 +46,10 @@ public class GroupServiceImpl implements GroupService {
     @Transactional(readOnly = true)
     public PagedResponse<GroupSummaryResponse> getAllGroups(String search, int page, int limit) {
         // enforce max limit of 50
-        int safeLimit = Math.min(limit, 50);
-        PageRequest pageable = PageRequest.of(page - 1, safeLimit); // Spring pages are 0-indexed
+        int safeLimit = Math.min(Math.max(limit, 1), 50);
+        // FIX [Medium]: page < 1 would produce negative index — clamp to minimum 1
+        int safePage = Math.max(page, 1);
+        PageRequest pageable = PageRequest.of(safePage - 1, safeLimit); // Spring pages are 0-indexed
 
         Page<Group> results = (search != null && !search.isBlank())
                 ? groupRepository.findByNameContainingIgnoreCaseAndIsPublic(search, true, pageable)
@@ -58,7 +60,7 @@ public class GroupServiceImpl implements GroupService {
                 .map(this::toSummaryResponse)
                 .toList();
 
-        return new PagedResponse<>(data, page, safeLimit, results.getTotalElements());
+        return new PagedResponse<>(data, safePage, safeLimit, results.getTotalElements());
     }
 
     @Override
@@ -112,6 +114,15 @@ public class GroupServiceImpl implements GroupService {
     public GroupDetailResponse getGroupById(UUID id) {
         Group group = groupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException(id));
+
+        if (!Boolean.TRUE.equals(group.getIsPublic())) {
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+            User currentUser = userRepository.findById(currentUserId)
+                    .orElseThrow(() -> new UserNotFoundException(currentUserId));
+            if (!groupMemberRepository.existsByGroupAndUser(group, currentUser)) {
+                throw new NotGroupMemberException();
+            }
+        }
 
         List<MemberResponse> members = groupMemberRepository.findByGroup(group)
                 .stream()

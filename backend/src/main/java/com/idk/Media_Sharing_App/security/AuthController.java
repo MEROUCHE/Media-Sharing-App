@@ -20,10 +20,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-
-    @Autowired
-    private RefreshTokenService refreshTokenService;
-
+    private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
 
     public AuthController(AuthenticationManager authenticationManager,
@@ -75,14 +72,16 @@ public class AuthController {
             );
 
             User user = userRepository.findByEmail(request.email()).get();
-            String accessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
+            // FIX [Medium]: check email verification BEFORE creating a refresh token
             if (!user.isEmailVerified()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error",
                                 "Email not verified. Check your inbox for the verification link."));
             }
+
+            String accessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
             return ResponseEntity.ok(new LoginResponse(
                     accessToken,
@@ -107,15 +106,19 @@ public class AuthController {
                     .body(Map.of("error", "refreshToken is required"));
         }
 
-        RefreshToken refreshToken = refreshTokenService.validateRefreshToken(token);
-        User user = refreshToken.getUser();
+        // FIX [High]: rotate the refresh token on every use to prevent replay attacks
+        RefreshToken oldRefreshToken = refreshTokenService.validateRefreshToken(token);
+        User user = oldRefreshToken.getUser();
 
-        // generate new access token
+        // revoke old token and issue a fresh one
+        refreshTokenService.revokeRefreshToken(token);
+        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+
         String newAccessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
 
         return ResponseEntity.ok(Map.of(
                 "token", newAccessToken,
-                "refreshToken", token   // same refresh token, not rotated
+                "refreshToken", newRefreshToken.getToken()   // rotated
         ));
     }
 

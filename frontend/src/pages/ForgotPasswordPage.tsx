@@ -26,59 +26,58 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-slate-950">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6">
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-4 bg-[#09090B]">
+      <div className="w-full max-w-sm bg-[#111113] border border-zinc-800/80 rounded-xl p-6 sm:p-7 space-y-5 animate-fade-up">
         <Link
           to="/login"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-100 transition"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Login
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to Sign In
         </Link>
 
         {submitted ? (
-          <div className="text-center space-y-4">
-            <div className="inline-flex p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-2xl text-emerald-400">
-              <CheckCircle2 className="w-8 h-8" />
+          <div className="text-center space-y-3 py-2">
+            <div className="inline-flex p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
-            <h2 className="text-xl font-bold text-white">Reset Link Sent</h2>
-            <p className="text-sm text-slate-400">
-              If an account with that email exists, we have sent a password reset link to{" "}
-              <span className="text-indigo-400 font-semibold">{email}</span>.
-            </p>
-            <p className="text-xs text-slate-500">
-              Please check your inbox and click the link within 1 hour to reset your password.
+            <h2 className="text-lg font-bold text-zinc-100">Reset Link Sent</h2>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              If an account exists for{" "}
+              <span className="text-zinc-100 font-medium">{email}</span>, a reset link has been sent.
             </p>
           </div>
         ) : (
           <>
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-white">Forgot Password</h1>
-              <p className="text-sm text-slate-400">
-                Enter your account email and we'll send you a password reset link.
+            <div className="space-y-1">
+              <h1 className="text-xl font-bold text-zinc-100 tracking-tight">
+                Reset Password
+              </h1>
+              <p className="text-xs text-zinc-400">
+                Enter your email and we'll send you a reset link.
               </p>
             </div>
 
             {error && (
-              <div className="p-3 text-sm text-rose-300 bg-rose-950/40 border border-rose-800/60 rounded-xl">
+              <div className="p-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-                  Email Address
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
+                  Email
                 </label>
                 <div className="relative">
-                  <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-3" />
+                  <Mail className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
                   <input
                     type="email"
                     required
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-11 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm transition"
+                    className="w-full pl-9 pr-3.5 py-2 bg-[#09090B] border border-zinc-800 rounded-lg text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 text-xs transition"
                   />
                 </div>
               </div>
@@ -86,9 +85,9 @@ export const ForgotPasswordPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg transition disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-medium rounded-lg transition disabled:opacity-50"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send Reset Link"}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Reset Link"}
               </button>
             </form>
           </>

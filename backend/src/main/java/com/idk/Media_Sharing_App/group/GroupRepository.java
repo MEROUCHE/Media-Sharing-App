@@ -11,7 +11,9 @@ import java.util.UUID;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, UUID> {
-    Optional<User> findByName(String name);
+
+    // FIX [Critical]: was incorrectly returning Optional<User>
+    Optional<Group> findByName(String name);
 
     // for GET /groups with optional search + pagination
     Page<Group> findByNameContainingIgnoreCase(String name, Pageable pageable);

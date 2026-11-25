@@ -1,6 +1,9 @@
 package com.idk.Media_Sharing_App.email;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import java.util.Map;
@@ -8,7 +11,9 @@ import java.util.Map;
 @Service
 public class EmailService {
 
-    @Value("${RESEND_API_KEY}")
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
+    @Value("${RESEND_API_KEY:${spring.mail.password:}}")
     private String resendApiKey;
 
     private final RestClient restClient;
@@ -17,6 +22,7 @@ public class EmailService {
         this.restClient = RestClient.create();
     }
 
+    @Async
     public void sendVerificationEmail(String to, String username,
                                       String verificationLink) {
         String subject = "Verify your email";
@@ -35,6 +41,7 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
+    @Async
     public void sendPasswordResetEmail(String to, String username,
                                        String resetLink) {
         String subject = "Reset your password";
@@ -71,7 +78,7 @@ public class EmailService {
                     .toBodilessEntity();
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email: " + e.getMessage());
+            log.error("Failed to send email to {}: {}", to, e.getMessage(), e);
         }
     }
 }

@@ -6,13 +6,12 @@ import * as groupService from "../services/group.service";
 import GroupCard from "../components/cards/GroupCard";
 import CreateGroupModal from "../components/modals/CreateGroupModal";
 import JoinGroupModal from "../components/modals/JoinGroupModal";
+import { GroupCardSkeleton } from "../components/ui/Skeleton";
 import {
   Users,
-  PlusCircle,
+  Plus,
   KeyRound,
-  Loader2,
   FolderOpen,
-  Sparkles,
   Film,
   Crown,
   Search,
@@ -39,7 +38,8 @@ export const DashboardPage: React.FC = () => {
   const filteredGroups = myGroups?.filter((group) => {
     const matchesSearch =
       group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (group.description && group.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      (group.description &&
+        group.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
     if (!matchesSearch) return false;
 
@@ -49,84 +49,76 @@ export const DashboardPage: React.FC = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-200">
-      {/* Hero Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-950/60 via-slate-900/90 to-purple-950/50 p-6 sm:p-10 shadow-2xl glow-indigo">
-        {/* Subtle decorative circles */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Media Tracker & Social Clubs</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Hello, {user?.username}! 👋
-            </h1>
-
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              Track books you read, movies and series you watch, and games you conquer alongside your friends in shared media clubs.
-            </p>
-
-            {/* Quick Stat Pills */}
-            <div className="flex items-center gap-4 pt-2 flex-wrap text-xs text-slate-300">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950/60 rounded-xl border border-white/5">
-                <Users className="w-4 h-4 text-indigo-400" />
-                <span className="font-bold text-white">{myGroups?.length || 0}</span>
-                <span className="text-slate-400">Clubs</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950/60 rounded-xl border border-white/5">
-                <Film className="w-4 h-4 text-purple-400" />
-                <span className="font-bold text-white">{totalMedia}</span>
-                <span className="text-slate-400">Items Tracked</span>
-              </div>
-            </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-up">
+      {/* Header Bar */}
+      <div className="bg-[#111113] border border-zinc-800/80 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-2 max-w-2xl">
+          <div className="flex items-center gap-2 text-xs text-zinc-400">
+            <span>Workspace</span>
+            <span className="text-zinc-700">/</span>
+            <span className="text-zinc-200 font-medium">@{user?.username}</span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 w-full md:w-auto shrink-0">
-            <button
-              onClick={() => setIsJoinOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-slate-900/90 hover:bg-slate-800 text-slate-200 text-xs font-bold rounded-2xl border border-slate-700/80 transition shadow-sm active:scale-95"
-            >
-              <KeyRound className="w-4 h-4 text-amber-400" />
-              <span>Enter Invite Code</span>
-            </button>
-            <button
-              onClick={() => setIsCreateOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-bold rounded-2xl shadow-xl shadow-indigo-600/30 transition active:scale-95"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Create Club</span>
-            </button>
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-100 tracking-tight">
+            Your Media Clubs
+          </h1>
+
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            Track books, movies, shows, and games alongside friends in shared clubs.
+          </p>
+
+          <div className="flex items-center gap-3 pt-1 flex-wrap text-xs text-zinc-400 font-mono tabular-nums">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#09090B] rounded-lg border border-zinc-800/80">
+              <Users className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="font-semibold text-zinc-100">{myGroups?.length || 0}</span>
+              <span className="text-zinc-500 font-sans">Clubs</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#09090B] rounded-lg border border-zinc-800/80">
+              <Film className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="font-semibold text-zinc-100">{totalMedia}</span>
+              <span className="text-zinc-500 font-sans">Items tracked</span>
+            </div>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">
+          <button
+            onClick={() => setIsJoinOpen(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#09090B] hover:bg-zinc-800 text-zinc-200 text-xs font-medium rounded-lg border border-zinc-800 transition"
+          >
+            <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+            <span>Enter Code</span>
+          </button>
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-medium rounded-lg transition"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Create Club</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Section: Clubs Filter & Search */}
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          {/* Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      {/* Filter & Search Toolbar */}
+      <div className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             <button
               onClick={() => setFilterMode("ALL")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                 filterMode === "ALL"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+                  ? "bg-zinc-100 text-zinc-950"
+                  : "bg-[#111113] text-zinc-400 hover:text-zinc-100 border border-zinc-800/80"
               }`}
             >
-              All Clubs ({myGroups?.length || 0})
+              All ({myGroups?.length || 0})
             </button>
             <button
               onClick={() => setFilterMode("OWNED")}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                 filterMode === "OWNED"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+                  ? "bg-zinc-100 text-zinc-950"
+                  : "bg-[#111113] text-zinc-400 hover:text-zinc-100 border border-zinc-800/80"
               }`}
             >
               <Crown className="w-3.5 h-3.5 text-amber-400" />
@@ -134,81 +126,81 @@ export const DashboardPage: React.FC = () => {
             </button>
             <button
               onClick={() => setFilterMode("JOINED")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                 filterMode === "JOINED"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+                  ? "bg-zinc-100 text-zinc-950"
+                  : "bg-[#111113] text-zinc-400 hover:text-zinc-100 border border-zinc-800/80"
               }`}
             >
               Joined
             </button>
           </div>
 
-          {/* Quick Search */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Filter your clubs..."
+              placeholder="Filter clubs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-8 pr-3 py-1.5 bg-[#111113] border border-zinc-800/80 rounded-lg text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition"
             />
           </div>
         </div>
 
-        {/* Group Cards Grid */}
+        {/* Grid / Skeletons / Empty State */}
         {isLoading ? (
-          <div className="py-24 flex flex-col items-center justify-center gap-3 text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
-            <p className="text-sm font-medium">Loading your clubs...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <GroupCardSkeleton key={idx} />
+            ))}
           </div>
         ) : error ? (
-          <div className="p-8 bg-rose-950/20 border border-rose-900/40 rounded-3xl text-rose-300 text-center space-y-2">
-            <p className="font-bold">Failed to connect to backend</p>
-            <p className="text-xs text-rose-400">Please verify Spring Boot is running on port 8080.</p>
+          <div className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-center space-y-1">
+            <p className="text-sm font-medium">Failed to load clubs</p>
+            <p className="text-xs text-rose-400/80">
+              Please verify the backend server is running and try refreshing.
+            </p>
           </div>
         ) : filteredGroups && filteredGroups.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredGroups.map((group) => (
               <GroupCard key={group.id} group={group} isMember={true} />
             ))}
           </div>
         ) : (
-          /* Empty State */
-          <div className="glass-panel border-dashed border-slate-800 rounded-3xl p-12 text-center max-w-lg mx-auto space-y-4">
-            <div className="inline-flex p-4 bg-slate-800/60 rounded-2xl text-indigo-400">
-              <FolderOpen className="w-10 h-10" />
+          <div className="bg-[#111113] border border-dashed border-zinc-800 rounded-xl p-10 text-center max-w-md mx-auto space-y-4">
+            <div className="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-400">
+              <FolderOpen className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white">
-                {searchQuery ? "No matching clubs found" : "No Media Clubs Joined Yet"}
+              <h3 className="text-sm font-semibold text-zinc-100">
+                {searchQuery ? "No matching clubs" : "No clubs yet"}
               </h3>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              <p className="text-xs text-zinc-400 leading-relaxed">
                 {searchQuery
-                  ? "Try adjusting your search filter or clear the query."
-                  : "You are not a member of any media group yet. Start by creating a club or exploring public ones."}
+                  ? "Try clearing your search filter."
+                  : "Create your own club or explore public clubs to start tracking."}
               </p>
             </div>
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="pt-1 flex items-center justify-center gap-2.5">
               <button
                 onClick={() => setIsCreateOpen(true)}
-                className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-xs transition"
+                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-medium rounded-lg text-xs transition"
               >
-                Create a Club
+                Create Club
               </button>
               <Link
                 to="/explore"
-                className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl text-xs transition"
+                className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 font-medium rounded-lg text-xs transition"
               >
-                Explore Public Clubs
+                Explore Public
               </Link>
             </div>
           </div>
         )}
       </div>
 
-      {/* Modals */}
       <CreateGroupModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
       <JoinGroupModal isOpen={isJoinOpen} onClose={() => setIsJoinOpen(false)} />
     </div>

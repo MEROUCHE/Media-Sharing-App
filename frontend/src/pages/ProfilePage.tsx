@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import * as userService from "../services/user.service";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 import {
   User as UserIcon,
   Mail,
@@ -11,7 +12,6 @@ import {
   Trash2,
   Loader2,
   Check,
-  AlertTriangle,
 } from "lucide-react";
 
 export const ProfilePage: React.FC = () => {
@@ -51,7 +51,7 @@ export const ProfilePage: React.FC = () => {
         avatarUrl: updated.avatarUrl,
       });
 
-      toastSuccess("Profile updated successfully!");
+      toastSuccess("Profile updated");
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err: any) {
@@ -71,77 +71,78 @@ export const ProfilePage: React.FC = () => {
     } catch (err: any) {
       toastError(err?.response?.data?.error || "Failed to delete account");
       setDeleteLoading(false);
+      setDeleteModalOpen(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Your Profile</h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Manage your account settings, personal details, and avatar.
+        <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">
+          Profile & Settings
+        </h1>
+        <p className="text-zinc-400 text-xs mt-1">
+          Manage your account details, avatar, and security preferences.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Profile Card Summary */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col items-center text-center space-y-4 shadow-xl h-fit">
-          <div className="relative">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={username}
-                className="w-24 h-24 rounded-full object-cover border-2 border-indigo-500 shadow-lg"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = "none";
-                }}
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-indigo-950/60 border-2 border-indigo-500/40 flex items-center justify-center font-bold text-2xl text-indigo-300">
-                {username?.slice(0, 2).toUpperCase() || <UserIcon className="w-10 h-10" />}
-              </div>
-            )}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Summary Card */}
+        <div className="bg-[#111113] border border-zinc-800/80 rounded-xl p-6 flex flex-col items-center text-center space-y-4 h-fit">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={username}
+              className="w-20 h-20 rounded-full object-cover border border-zinc-700"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center font-semibold text-xl text-zinc-200">
+              {username?.slice(0, 2).toUpperCase() || <UserIcon className="w-8 h-8" />}
+            </div>
+          )}
 
           <div>
-            <h2 className="text-xl font-bold text-white">@{username}</h2>
-            <p className="text-xs text-slate-400">{user?.email}</p>
+            <h2 className="text-base font-semibold text-zinc-100">@{username}</h2>
+            <p className="text-xs text-zinc-400 mt-0.5">{user?.email}</p>
           </div>
 
-          <div className="w-full pt-4 border-t border-slate-800 space-y-2 text-left text-xs text-slate-400">
+          <div className="w-full pt-4 border-t border-zinc-800/80 space-y-2 text-left text-[11px] text-zinc-400 font-mono tabular-nums">
             <div className="flex items-center gap-2">
-              <Key className="w-4 h-4 text-slate-500 shrink-0" />
-              <span className="font-mono truncate">{user?.id}</span>
+              <Key className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+              <span className="truncate">{user?.id}</span>
             </div>
             {user?.createdAt && (
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
+              <div className="flex items-center gap-2 font-sans">
+                <Calendar className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                 <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Edit Form */}
-        <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl">
-          <h3 className="text-lg font-bold text-white">Edit Profile Information</h3>
+        {/* Edit Form & Danger Zone */}
+        <div className="md:col-span-2 bg-[#111113] border border-zinc-800/80 rounded-xl p-6 space-y-6">
+          <h3 className="text-sm font-semibold text-zinc-100">Account Information</h3>
 
           {error && (
-            <div className="p-3 text-sm text-rose-300 bg-rose-950/40 border border-rose-800/60 rounded-xl">
+            <div className="p-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg">
               {error}
             </div>
           )}
 
           {saveSuccess && (
-            <div className="p-3 text-sm text-emerald-300 bg-emerald-950/40 border border-emerald-800/60 rounded-xl flex items-center gap-2">
-              <Check className="w-4 h-4" />
-              <span>Profile updated successfully!</span>
+            <div className="p-3 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-2">
+              <Check className="w-3.5 h-3.5" />
+              <span>Profile updated successfully.</span>
             </div>
           )}
 
           <form onSubmit={handleUpdate} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
                 Username
               </label>
               <input
@@ -151,26 +152,25 @@ export const ProfilePage: React.FC = () => {
                 maxLength={30}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500 text-sm"
+                className="w-full px-3.5 py-2 bg-[#09090B] border border-zinc-800 rounded-lg text-zinc-100 focus:outline-none focus:border-indigo-500 text-xs transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
                 Email Address
               </label>
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl text-slate-500 text-sm">
-                <Mail className="w-4 h-4" />
+              <div className="flex items-center gap-2 px-3.5 py-2 bg-[#09090B]/60 border border-zinc-800/80 rounded-lg text-zinc-400 text-xs">
+                <Mail className="w-3.5 h-3.5 text-zinc-500" />
                 <span>{user?.email}</span>
-                <span className="ml-auto text-2xs bg-slate-800 px-2 py-0.5 rounded text-slate-400">
+                <span className="ml-auto text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
                   Verified
                 </span>
               </div>
-              <p className="text-2xs text-slate-500 mt-1">Email cannot be changed.</p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
                 Avatar Image URL (optional)
               </label>
               <input
@@ -179,7 +179,7 @@ export const ProfilePage: React.FC = () => {
                 placeholder="https://example.com/avatar.jpg"
                 value={avatarUrl}
                 onChange={(e) => setAvatarUrl(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm"
+                className="w-full px-3.5 py-2 bg-[#09090B] border border-zinc-800 rounded-lg text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 text-xs transition"
               />
             </div>
 
@@ -187,30 +187,32 @@ export const ProfilePage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 py-2.5 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-sm transition disabled:opacity-50"
+                className="flex items-center gap-1.5 py-2 px-4 bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-medium rounded-lg transition disabled:opacity-50"
               >
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Save Changes
               </button>
             </div>
           </form>
 
-          {/* Danger Zone: Delete Account */}
-          <div className="pt-6 border-t border-slate-800/80 space-y-3">
-            <h4 className="text-sm font-bold text-rose-400">Danger Zone</h4>
-            <div className="flex items-center justify-between p-4 bg-rose-950/10 border border-rose-900/30 rounded-2xl">
+          {/* Danger Zone */}
+          <div className="pt-5 border-t border-zinc-800/80 space-y-3">
+            <h4 className="text-xs font-semibold text-rose-400 uppercase tracking-wider">
+              Danger Zone
+            </h4>
+            <div className="flex items-center justify-between p-4 bg-rose-500/[0.05] border border-rose-500/20 rounded-lg">
               <div>
-                <p className="text-sm font-semibold text-white">Delete Account</p>
-                <p className="text-xs text-slate-400">
-                  Permanently delete your profile and membership from all clubs.
+                <p className="text-xs font-semibold text-zinc-100">Delete Account</p>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Permanently delete your profile, memberships, and progress.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setDeleteModalOpen(true)}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-rose-400 bg-rose-950/30 hover:bg-rose-950/50 border border-rose-900/50 rounded-xl transition"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5" />
                 <span>Delete</span>
               </button>
             </div>
@@ -218,41 +220,15 @@ export const ProfilePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-rose-400">
-              <div className="p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white">Delete Your Account?</h3>
-            </div>
-            <p className="text-sm text-slate-300">
-              This action is permanent and cannot be undone. All your profile data and progress records will be erased.
-            </p>
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-              <button
-                type="button"
-                onClick={() => setDeleteModalOpen(false)}
-                disabled={deleteLoading}
-                className="px-4 py-2 text-sm text-slate-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteAccount}
-                disabled={deleteLoading}
-                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-xl transition"
-              >
-                {deleteLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Yes, Delete My Account
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={deleteModalOpen}
+        title="Delete Your Account?"
+        message="This action is permanent and cannot be undone. All your profile data and progress records will be erased."
+        confirmLabel="Yes, Delete My Account"
+        loading={deleteLoading}
+        onCancel={() => setDeleteModalOpen(false)}
+        onConfirm={handleDeleteAccount}
+      />
     </div>
   );
 };

@@ -7,6 +7,12 @@ const api = axios.create({
   },
 });
 
+const clearAuthStorage = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
+};
+
 // Attach access token to every outgoing request
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -67,7 +73,7 @@ api.interceptors.response.use(
 
       const refreshToken = localStorage.getItem("refreshToken");
       if (!refreshToken) {
-        localStorage.clear();
+        clearAuthStorage();
         isRefreshing = false;
         return Promise.reject(error);
       }
@@ -88,7 +94,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.clear();
+        clearAuthStorage();
         window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {

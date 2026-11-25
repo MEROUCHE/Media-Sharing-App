@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, Film, Tv, Gamepad2, ArrowUpRight } from "lucide-react";
+import { BookOpen, Film, Tv, Gamepad2 } from "lucide-react";
 import type { MediaItemSummary } from "../../types/group.types";
 
 interface MediaCardProps {
@@ -9,116 +9,111 @@ interface MediaCardProps {
 }
 
 export const MediaCard: React.FC<MediaCardProps> = ({ groupId, item }) => {
-  const getTypeBadge = (type: string) => {
+  const [imgError, setImgError] = useState(false);
+
+  const getTypeMeta = (type: string) => {
     switch (type?.toLowerCase()) {
       case "book":
         return {
           icon: BookOpen,
           label: "Book",
-          color: "bg-amber-950/70 text-amber-400 border-amber-800/40",
+          color: "bg-amber-500/15 text-amber-300 border-amber-500/25",
         };
       case "movie":
         return {
           icon: Film,
           label: "Movie",
-          color: "bg-blue-950/70 text-blue-400 border-blue-800/40",
+          color: "bg-sky-500/15 text-sky-300 border-sky-500/25",
         };
       case "show":
         return {
           icon: Tv,
           label: "Show",
-          color: "bg-purple-950/70 text-purple-400 border-purple-800/40",
+          color: "bg-violet-500/15 text-violet-300 border-violet-500/25",
         };
       case "game":
         return {
           icon: Gamepad2,
           label: "Game",
-          color: "bg-emerald-950/70 text-emerald-400 border-emerald-800/40",
+          color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
         };
       default:
         return {
           icon: Film,
           label: type,
-          color: "bg-slate-800 text-slate-300 border-slate-700",
+          color: "bg-zinc-800 text-zinc-300 border-zinc-700",
         };
     }
   };
 
-  const badge = getTypeBadge(item.type);
+  const badge = getTypeMeta(item.type);
   const Icon = badge.icon;
 
   const getUnitsLabel = (type: string, units?: number | null) => {
     if (!units) return null;
     switch (type?.toLowerCase()) {
       case "book":
-        return `${units} pages`;
+        return `${units}p`;
       case "movie":
-        return `${units} mins`;
+        return `${units}m`;
       case "show":
-        return `${units} eps`;
+        return `${units} ep`;
       case "game":
-        return `${units} units`;
+        return `${units}u`;
       default:
-        return `${units} units`;
+        return `${units}u`;
     }
   };
 
   return (
     <Link
       to={`/groups/${groupId}/media/${item.id}`}
-      className="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col group transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/5"
+      className="group bg-[#111113] border border-zinc-800/80 hover:border-zinc-700 rounded-xl overflow-hidden flex flex-col transition-colors duration-150"
     >
-      {/* Cover Image */}
-      <div className="relative aspect-2/3 bg-slate-950 overflow-hidden">
-        {item.coverUrl ? (
+      {/* Consistent 2:3 Poster Aspect */}
+      <div className="relative aspect-[2/3] bg-zinc-950 overflow-hidden">
+        {item.coverUrl && !imgError ? (
           <img
             src={item.coverUrl}
             alt={item.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              (e.target as HTMLElement).style.display = "none";
-            }}
+            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+            onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-700 p-4">
-            <Icon className="w-12 h-12 mb-2" />
-            <span className="text-xs font-medium">No cover art</span>
+          <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900/50 text-zinc-600 p-4 text-center">
+            <Icon className="w-8 h-8 mb-2 stroke-[1.5]" />
+            <span className="text-[11px] font-medium text-zinc-500 line-clamp-2">
+              {item.title}
+            </span>
           </div>
         )}
 
-        {/* Type Badge */}
-        <div className="absolute top-3 left-3">
+        {/* Compact Type Pill */}
+        <div className="absolute top-2.5 left-2.5">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold backdrop-blur-md border ${badge.color}`}
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-[#09090B]/85 border ${badge.color}`}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-3 h-3" />
             <span>{badge.label}</span>
-          </span>
-        </div>
-
-        {/* Hover overlay hint */}
-        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600/90 text-white rounded-lg text-xs font-semibold shadow-lg">
-            Track Progress <ArrowUpRight className="w-3.5 h-3.5" />
           </span>
         </div>
       </div>
 
-      {/* Info */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      {/* Metadata */}
+      <div className="p-3.5 flex-1 flex flex-col justify-between gap-2">
         <div>
-          <h4 className="font-bold text-white text-base leading-snug line-clamp-1 group-hover:text-indigo-400 transition">
+          <h4 className="font-semibold text-zinc-100 text-sm leading-snug line-clamp-1 group-hover:text-white transition">
             {item.title}
           </h4>
-          <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">
+          <p className="text-xs text-zinc-400 line-clamp-1 mt-0.5">
             {item.creator || "Unknown creator"}
           </p>
         </div>
 
-        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-800/80 text-2xs text-slate-500">
-          <span>{getUnitsLabel(item.type, item.totalUnits) || "Flexible tracking"}</span>
-          <span className="text-indigo-400 font-semibold group-hover:underline">
-            Details →
+        <div className="flex items-center justify-between pt-2 border-t border-zinc-800/60 text-[11px] text-zinc-500 font-mono tabular-nums">
+          <span>{getUnitsLabel(item.type, item.totalUnits) || "Flexible"}</span>
+          <span className="text-indigo-400 font-sans font-medium opacity-80 group-hover:opacity-100">
+            Track →
           </span>
         </div>
       </div>

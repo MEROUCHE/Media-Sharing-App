@@ -29,11 +29,23 @@ public class GroupMemberServiceImpl implements GroupMemberService {
         this.userRepository = userRepository;
     }
 
+    private void ensureCanViewGroup(Group group) {
+        if (!Boolean.TRUE.equals(group.getIsPublic())) {
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+            User currentUser = userRepository.findById(currentUserId)
+                    .orElseThrow(() -> new UserNotFoundException(currentUserId));
+            if (!groupMemberRepository.existsByGroupAndUser(group, currentUser)) {
+                throw new NotGroupMemberException();
+            }
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public GroupMemberListResponse getMembers(UUID groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+        ensureCanViewGroup(group);
 
         List<GroupMemberResponse> members = groupMemberRepository.findByGroup(group)
                 .stream()
@@ -48,6 +60,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     public GroupMemberResponse getMember(UUID groupId, UUID userId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
+        ensureCanViewGroup(group);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
